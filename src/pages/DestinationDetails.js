@@ -120,7 +120,23 @@ function DestinationDetails() {
             >
              Add to My Trip
           </Button>
-          <Button colorScheme="green" size="sm" variant="outline">Book Now</Button>
+          <Button colorScheme="green" size="sm" variant="outline"
+          onClick={() => {
+            const plannedTrips = JSON.parse(localStorage.getItem('plannedTrips')) || [];
+            const alreadyPlanned = plannedTrips.find(t => t.id === destination.id);
+
+            if (!alreadyPlanned) {
+              const newPlan = {
+                ...destination,
+                datePlanned: new Date().toISOString(),
+              };
+              localStorage.setItem('plannedTrips', JSON.stringify([...plannedTrips, newPlan]));
+              alert('Destination added to Planned Trips!');
+            } else {
+              alert('Already planned this trip!');
+            }
+          }}
+          >Book Now</Button>
         </VStack>
       </SimpleGrid>
     </Box>
