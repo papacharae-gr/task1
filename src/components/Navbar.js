@@ -12,12 +12,12 @@ import { Link, useLocation } from 'react-router-dom';
 const navTabs = [
   { label: 'Home', path: '/' },
   { label: 'Destinations', path: '/DestinationDetails' },
-  { label: 'My Trips', path: '/trips' },
+  { label: 'My Trips', path: '/MyTrips' },
 ];
 
 function Navbar() {
   const location = useLocation();
-  const bg = useColorModeValue('blue.500', 'blue.700');
+  const bg = useColorModeValue('gray.800', 'gray.700');
 
   // Active tab index based on URL
   const activeIndex = navTabs.findIndex(tab => {
@@ -45,7 +45,7 @@ function Navbar() {
                 as={Link}
                 to={path}
                 _selected={{
-                  bg: 'whiteAlpha.300',
+                  bg: 'blue.600',
                   color: 'white',
                   fontWeight: 'bold',
                   rounded: 'md',
