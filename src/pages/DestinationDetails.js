@@ -7,49 +7,63 @@ import {
   VStack,
   Button,
   Icon,
-  Divider,
   List,
   ListItem,
   ListIcon,
   SimpleGrid,
+  Image,
   useColorModeValue,
 } from '@chakra-ui/react';
-import { FaCheckCircle, FaMapMarkerAlt, FaUtensils, FaStar } from 'react-icons/fa';
+import { FaCheckCircle, FaMapMarkerAlt, FaUtensils } from 'react-icons/fa';
+import { useParams, useNavigate } from 'react-router-dom';
+import destinations from '../data/destinations.json';
 
 function DestinationDetails() {
+  const { id } = useParams();
+  const navigate = useNavigate();
   const cardBg = useColorModeValue('white', 'gray.800');
+  const sidebarBg = useColorModeValue('gray.50', 'gray.700');
+
+  const destination = destinations.find(dest => dest.id === id);
+
+  if (!destination) {
+    return (
+      <Box p={10}>
+        <Heading size="lg">Destination Not Found</Heading>
+        <Text mt={2}>Please check the URL or return to the home page.</Text>
+        <Button mt={4} onClick={() => navigate('/')}>Go Home</Button>
+      </Box>
+    );
+  }
 
   return (
     <Box px={{ base: 4, md: 10 }} py={8} maxW="1000px" mx="auto">
       {/* Header */}
       <VStack spacing={2} textAlign="center" mb={8}>
-        <Heading size="xl">Paris, France</Heading>
+        <Heading size="xl">{destination.name}</Heading>
         <Text fontSize="lg" color="gray.500">
-          The City of Light
+          {destination.tagline}
         </Text>
       </VStack>
 
       {/* Image */}
-      <Box
-        height="250px"
-        bg="gray.200"
+      <Image
+        src={destination.image}
+        alt={destination.name}
         borderRadius="xl"
         mb={8}
-        backgroundImage="url('https://ma.visamiddleeast.com/content/dam/VCOM/regional/cemea/generic-cemea/travel-with-visa/destinations/paris/marquee-travel-paris-800x450.jpg')"
-        backgroundPosition="center"
+        objectFit="cover"
+        height="250px"
+        width="100%"
       />
 
       <SimpleGrid columns={{ base: 1, md: 3 }} spacing={6}>
-        {/* Left Section */}
+        {/* Left/Main Section */}
         <Stack spacing={6} gridColumn="span 2">
           {/* About */}
           <Box bg={cardBg} p={5} borderRadius="lg" shadow="md">
-            <Heading size="md" mb={2}>About Paris</Heading>
-            <Text fontSize="sm">
-              Paris, the capital of France, is renowned for its art, fashion, gastronomy, and culture.
-              The city is home to iconic landmarks like the Eiffel Tower, Notre-Dame Cathedral,
-              and the Louvre Museum.
-            </Text>
+            <Heading size="md" mb={2}>About {destination.name.split(',')[0]}</Heading>
+            <Text fontSize="sm">{destination.description}</Text>
           </Box>
 
           {/* Top Attractions */}
@@ -58,7 +72,7 @@ function DestinationDetails() {
               <HStack><Icon as={FaMapMarkerAlt} /> <Text>Top Attractions</Text></HStack>
             </Heading>
             <List spacing={2} fontSize="sm">
-              {["Eiffel Tower", "Louvre Museum", "Notre-Dame Cathedral", "Champs-Élysées", "Montmartre"].map(item => (
+              {destination.attractions.map(item => (
                 <ListItem key={item}>
                   <ListIcon as={FaCheckCircle} color="green.500" />
                   {item}
@@ -72,21 +86,18 @@ function DestinationDetails() {
             <Heading size="md" mb={2}>
               <HStack><Icon as={FaUtensils} /> <Text>Local Cuisine</Text></HStack>
             </Heading>
-            <Text fontSize="sm">
-              Experience authentic French cuisine including croissants, macarons, escargot, and world-class wines.
-              Visit local bistros and patisseries for an unforgettable taste of Paris.
-            </Text>
+            <Text fontSize="sm">{destination.cuisine}</Text>
           </Box>
         </Stack>
 
         {/* Right Sidebar */}
         <VStack spacing={4} align="stretch">
-          <Box bg="gray.50" p={5} borderRadius="lg" shadow="md">
+          <Box bg={sidebarBg} p={5} borderRadius="lg" shadow="md">
             <Heading size="sm" mb={3}>Trip Information</Heading>
-            <Text fontSize="sm"><b>Best Time to Visit:</b> April to October</Text>
-            <Text fontSize="sm"><b>Currency:</b> Euro (€)</Text>
-            <Text fontSize="sm"><b>Language:</b> French</Text>
-            <Text fontSize="sm"><b>Average Cost:</b> €850-1200</Text>
+            {Object.entries(destination.tripInfo).map(([key, value]) => (
+              <Text key={key} fontSize="sm"><b>{key}:</b> {value}</Text>
+            ))}
+            <Text mt={3}><b>Rating:</b> ⭐ {destination.rating} / 5</Text>
           </Box>
 
           <Button colorScheme="blue" size="sm">Add to My Trips</Button>

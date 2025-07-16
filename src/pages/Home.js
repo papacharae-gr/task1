@@ -91,7 +91,7 @@ function Home() {
               <CardFooter>
                 <Button
                   as={Link}
-                  to={`/destination/${dest.id}`}
+                  to={`/DestinationDetails/${dest.id}`}
                   colorScheme="blue"
                   size="sm"
                   borderRadius="full"

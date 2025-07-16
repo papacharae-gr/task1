@@ -4,20 +4,65 @@
     "name": "Paris, France",
     "rating": 4.8,
     "image": "https://asset-prod.france.fr/samael334_Adobe_Stock_40157ca480.jpeg",
-    "description": "The City of Light offers romance, culture, and incredible cuisine."
+    "description": "The City of Light offers romance, culture, and incredible cuisine.",
+    "tagline": "The City of Light",
+    "attractions": [
+      "Eiffel Tower",
+      "Louvre Museum",
+      "Notre-Dame Cathedral",
+      "Champs-Élysées",
+      "Montmartre"
+    ],
+    "cuisine": "Experience authentic French cuisine including croissants, macarons, escargot, and world-class wines.",
+    "tripInfo": {
+      "Best Time to Visit": "April to October",
+      "Currency": "Euro (€)",
+      "Language": "French",
+      "Average Cost": "€850-1200"
+    }
   },
   {
     "id": "tokyo",
     "name": "Tokyo, Japan",
     "rating": 4.9,
     "image": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRz_XC_7Yk5UZtOq5aspBQlG10mzTTUJCBrNA&s",
-    "description": "Modern metropolis blending tradition with cutting-edge technology."
+    "description": "Modern metropolis blending tradition with cutting-edge technology.",
+    "tagline": "Tradition Meets Innovation",
+    "attractions": [
+      "Tokyo Tower",
+      "Senso-ji Temple",
+      "Shibuya Crossing",
+      "Akihabara",
+      "Ueno Park"
+    ],
+    "cuisine": "Enjoy sushi, ramen, tempura, and more. Tokyo is a paradise for food lovers.",
+    "tripInfo": {
+      "Best Time to Visit": "March to May, October to November",
+      "Currency": "Yen (¥)",
+      "Language": "Japanese",
+      "Average Cost": "¥100,000 - ¥150,000"
+    }
   },
   {
     "id": "new-york",
     "name": "New York, USA",
     "rating": 4.6,
     "image": "https://as2.ftcdn.net/v2/jpg/02/78/13/67/1000_F_278136770_gtY679gEBnbKWhEjX40n7XmoMxcEt76P.jpg",
-    "description": "The city that never sleeps, full of energy and endless possibilities."
+    "description": "The city that never sleeps, full of energy and endless possibilities.",
+    "tagline": "The City That Never Sleeps",
+    "attractions": [
+      "Statue of Liberty",
+      "Central Park",
+      "Times Square",
+      "Empire State Building",
+      "Brooklyn Bridge"
+    ],
+    "cuisine": "Explore global cuisines from street food to Michelin-starred restaurants.",
+    "tripInfo": {
+      "Best Time to Visit": "April to June, September to early November",
+      "Currency": "US Dollar ($)",
+      "Language": "English",
+      "Average Cost": "$1000 - $1500"
+    }
   }
 ]
