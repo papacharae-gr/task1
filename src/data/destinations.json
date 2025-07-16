@@ -1,0 +1,23 @@
+[
+  {
+    "id": "paris",
+    "name": "Paris, France",
+    "rating": 4.8,
+    "image": "https://asset-prod.france.fr/samael334_Adobe_Stock_40157ca480.jpeg",
+    "description": "The City of Light offers romance, culture, and incredible cuisine."
+  },
+  {
+    "id": "tokyo",
+    "name": "Tokyo, Japan",
+    "rating": 4.9,
+    "image": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRz_XC_7Yk5UZtOq5aspBQlG10mzTTUJCBrNA&s",
+    "description": "Modern metropolis blending tradition with cutting-edge technology."
+  },
+  {
+    "id": "new-york",
+    "name": "New York, USA",
+    "rating": 4.6,
+    "image": "https://as2.ftcdn.net/v2/jpg/02/78/13/67/1000_F_278136770_gtY679gEBnbKWhEjX40n7XmoMxcEt76P.jpg",
+    "description": "The city that never sleeps, full of energy and endless possibilities."
+  }
+]
