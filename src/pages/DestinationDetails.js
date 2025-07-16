@@ -100,7 +100,26 @@ function DestinationDetails() {
             <Text mt={3}><b>Rating:</b> ⭐ {destination.rating} / 5</Text>
           </Box>
 
-          <Button colorScheme="blue" size="sm">Add to My Trips</Button>
+          <Button
+            colorScheme="blue"
+            onClick={() => {
+            const trips = JSON.parse(localStorage.getItem('myTrips')) || [];
+            const alreadyExists = trips.find(t => t.id === destination.id);
+
+            if (!alreadyExists) {
+            const newTrip = {
+            ...destination,
+            dateAdded: new Date().toISOString(),
+            };
+            localStorage.setItem('myTrips', JSON.stringify([...trips, newTrip]));
+            alert('Destination added to My Trips!');
+            } else {
+            alert('Already added to My Trips!');
+              }
+            }}
+            >
+             Add to My Trip
+          </Button>
           <Button colorScheme="green" size="sm" variant="outline">Book Now</Button>
         </VStack>
       </SimpleGrid>

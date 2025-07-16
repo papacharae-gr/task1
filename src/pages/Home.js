@@ -12,7 +12,6 @@ import {
   CardBody,
   CardFooter,
   HStack,
-  Flex,
   useColorModeValue,
   Divider
 } from '@chakra-ui/react';
@@ -34,6 +33,7 @@ function Home() {
 
   const cardBg = useColorModeValue('white', 'gray.800');
   const cardShadow = useColorModeValue('md', 'dark-lg');
+  
 
   return (
     <Box>
@@ -79,8 +79,9 @@ function Home() {
         <Heading size="lg" mb={4} color="blue.500">
           Popular Destinations
         </Heading>
-        <Divider mb={4} />
+        
         <Divider borderColor="blue.500" borderWidth="2px" />
+        <Divider mb={4} />
         <br />
 
         <Grid
@@ -106,6 +107,7 @@ function Home() {
                 <HStack mt={3}>
                   <Text fontWeight="bold" fontSize="sm" color="yellow.500">★</Text>
                   <Text fontSize="sm" fontWeight="medium">{dest.rating}/5</Text>
+                  
                 </HStack>
               </CardBody>
               <CardFooter>
