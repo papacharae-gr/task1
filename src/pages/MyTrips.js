@@ -14,10 +14,38 @@ import {
   useColorModeValue
 } from '@chakra-ui/react';
 import { Link } from 'react-router-dom';
+import {
+  Modal,
+  ModalOverlay,
+  ModalContent,
+  ModalHeader,
+  ModalFooter,
+  ModalBody,
+  ModalCloseButton,
+  Input,
+  Select,
+  useDisclosure,
+} from '@chakra-ui/react';
 
 function MyTrips() {
   const [savedDestinations, setSavedDestinations] = useState([]);
   const [plannedTrips, setPlannedTrips] = useState([]);
+  const [editTrip, SetEditTrip] = useState(null);
+  const { isOpen, onOpen, onClose } = useDisclosure();
+
+  const handleEditClick = (trip) => {
+    SetEditTrip(trip);
+    onOpen();
+  };
+
+  const handleEditSave = () => {
+    const updatedTrips = plannedTrips.map(trip =>
+      trip.id === editTrip.id ? editTrip : trip
+    );
+    setPlannedTrips(updatedTrips);
+    localStorage.setItem('plannedTrips', JSON.stringify(updatedTrips)); 
+    onClose();
+  };
 
   useEffect(() => {
     const saved = JSON.parse(localStorage.getItem('myTrips')) || [];
@@ -131,6 +159,11 @@ function MyTrips() {
                   <Text fontSize="sm" mr={2}>Status:</Text>
                   <Badge colorScheme={statusColor[trip.status] || 'gray'}>{trip.status}</Badge>
                   <Spacer />
+                  {trip.status === 'Planning' && (
+                    <Button size="xs" colorScheme="yellow" mr={1} onClick={() => handleEditClick(trip)}>
+                      Edit
+                    </Button>
+                  )}
                   <Button size="xs" colorScheme="red" onClick={() => handleRemovePlanned(trip.id)}>
                     Remove
                   </Button>
@@ -139,6 +172,49 @@ function MyTrips() {
             ))
           )}
         </VStack>
+        {/* Edit Modal */}
+        <Modal isOpen={isOpen} onClose={onClose}>
+          <ModalOverlay />
+          <ModalContent>
+            <ModalHeader>Edit Trip</ModalHeader>
+            <ModalCloseButton />
+            <ModalBody>
+              <Input
+                placeholder="Trip Title"
+                value={editTrip?.title || ''}
+                onChange={(e) => SetEditTrip({ ...editTrip, title: e.target.value })}
+                mb={3}
+              />
+              <Input
+                placeholder="Departure Date"
+                type="date"
+                value={editTrip?.departureDate || ''}
+                onChange={(e) => SetEditTrip({ ...editTrip, departureDate: e.target.value })}
+                mb={3}
+              />
+              <Input
+                placeholder="Return Date"
+                type="date"
+                value={editTrip?.returnDate || ''}
+                onChange={(e) => SetEditTrip({ ...editTrip, returnDate: e.target.value })}
+                mb={4}
+              />
+              <Select
+                placeholder="Select Status"
+                value={editTrip?.status || ''}
+                onChange={(e) => SetEditTrip({ ...editTrip, status: e.target.value })}
+              >
+                <option value="Planning">Planning</option>
+                <option value="Confirmed">Confirmed</option>
+                <option value="Cancelled">Cancelled</option>
+              </Select>
+            </ModalBody>
+            <ModalFooter>
+              <Button colorScheme="blue" onClick={handleEditSave}>Save</Button>
+              <Button ml={3} onClick={onClose}>Cancel</Button>
+            </ModalFooter>
+          </ModalContent>
+        </Modal>
       </Box>
     </Box>
   );

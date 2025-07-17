@@ -41,7 +41,8 @@ function AddTripModal({ isOpen, onClose, onAddTrip, defaultDestination = '' }) {
     const newTrip = {
       id: `${title.replace(/\s+/g, '-').toLowerCase()}-${Date.now()}`,
       title,
-      date: `${startDate} to ${endDate}`,
+      departureDate: startDate,
+      returnDate: endDate,
       status,
       destinations,
     };
