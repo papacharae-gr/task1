@@ -149,7 +149,9 @@ function MyTrips() {
                 borderRadius="xl"
               >
                 <Heading size="sm" mb={1}>{trip.title}</Heading>
-                <Text fontSize="xs" color="gray.500">Date: {trip.date}</Text>
+                <Text fontSize="xs" color="gray.500">
+                  Depareture: {trip.departureDate || '-'} | Return: {trip.returnDate || '-'}
+                </Text>
                 {Array.isArray(trip.destinations) && trip.destinations.length > 0 && (
                   <Text mt={1} fontSize="sm">
                     Destinations: {trip.destinations.join(', ')}
