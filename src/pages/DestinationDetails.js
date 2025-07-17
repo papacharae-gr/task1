@@ -13,14 +13,21 @@ import {
   SimpleGrid,
   Image,
   useColorModeValue,
+  useDisclosure,
+  useToast,
 } from '@chakra-ui/react';
 import { FaCheckCircle, FaMapMarkerAlt, FaUtensils } from 'react-icons/fa';
 import { useParams, useNavigate } from 'react-router-dom';
 import destinations from '../data/destinations.json';
+import AddTripModal from '../components/AddTripModal';
+import React from 'react';
 
 function DestinationDetails() {
   const { id } = useParams();
   const navigate = useNavigate();
+  const { isOpen, onOpen, onClose } = useDisclosure();
+  const toast = useToast();
+
   const cardBg = useColorModeValue('white', 'gray.800');
   const sidebarBg = useColorModeValue('gray.50', 'gray.700');
 
@@ -35,6 +42,28 @@ function DestinationDetails() {
       </Box>
     );
   }
+
+  const handleSaveToMyTrips = () => {
+    const trips = JSON.parse(localStorage.getItem('myTrips')) || [];
+    const alreadyExists = trips.find(t => t.id === destination.id);
+
+    if (!alreadyExists) {
+      const newTrip = {
+        ...destination,
+        dateAdded: new Date().toLocaleDateString(),
+      };
+      localStorage.setItem('myTrips', JSON.stringify([...trips, newTrip]));
+      toast({ title: 'Saved!', status: 'success', duration: 2000, isClosable: true });
+    } else {
+      toast({ title: 'Already in My Trips.', status: 'info', duration: 2000, isClosable: true, position: 'top-center' });
+    }
+  };
+
+  const handleAddPlannedTrip = (tripData) => {
+    const plannedTrips = JSON.parse(localStorage.getItem('plannedTrips')) || [];
+    localStorage.setItem('plannedTrips', JSON.stringify([...plannedTrips, tripData]));
+    toast({ title: 'Trip Planned!', status: 'success', duration: 3000, isClosable: true });
+  };
 
   return (
     <Box px={{ base: 4, md: 10 }} py={8} maxW="1000px" mx="auto">
@@ -100,43 +129,20 @@ function DestinationDetails() {
             <Text mt={3}><b>Rating:</b> ⭐ {destination.rating} / 5</Text>
           </Box>
 
-          <Button
-            colorScheme="blue"
-            onClick={() => {
-            const trips = JSON.parse(localStorage.getItem('myTrips')) || [];
-            const alreadyExists = trips.find(t => t.id === destination.id);
-
-            if (!alreadyExists) {
-            const newTrip = {
-            ...destination,
-            dateAdded: new Date().toISOString(),
-            };
-            localStorage.setItem('myTrips', JSON.stringify([...trips, newTrip]));
-            alert('Destination added to My Trips!');
-            } else {
-            alert('Already added to My Trips!');
-              }
-            }}
-            >
-             Add to My Trip
+          <Button colorScheme="blue" onClick={handleSaveToMyTrips}>
+            Add to My Trip
           </Button>
-          <Button colorScheme="green" size="sm" variant="outline"
-          onClick={() => {
-            const plannedTrips = JSON.parse(localStorage.getItem('plannedTrips')) || [];
-            const alreadyPlanned = plannedTrips.find(t => t.id === destination.id);
 
-            if (!alreadyPlanned) {
-              const newPlan = {
-                ...destination,
-                datePlanned: new Date().toISOString(),
-              };
-              localStorage.setItem('plannedTrips', JSON.stringify([...plannedTrips, newPlan]));
-              alert('Destination added to Planned Trips!');
-            } else {
-              alert('Already planned this trip!');
-            }
-          }}
-          >Book Now</Button>
+          <Button colorScheme="green" variant="outline" onClick={onOpen}>
+            Book Now
+          </Button>
+
+          <AddTripModal
+            isOpen={isOpen}
+            onClose={onClose}
+            onAddTrip={handleAddPlannedTrip}
+            defaultDestination={destination.name}
+          />
         </VStack>
       </SimpleGrid>
     </Box>

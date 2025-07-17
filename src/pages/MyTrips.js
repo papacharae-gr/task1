@@ -15,7 +15,6 @@ import {
 } from '@chakra-ui/react';
 import { Link } from 'react-router-dom';
 
-
 function MyTrips() {
   const [savedDestinations, setSavedDestinations] = useState([]);
   const [plannedTrips, setPlannedTrips] = useState([]);
@@ -27,10 +26,16 @@ function MyTrips() {
     setPlannedTrips(planned);
   }, []);
 
-  const handleRemove = (id) => {
+  const handleRemoveSaved = (id) => {
     const updated = savedDestinations.filter(dest => dest.id !== id);
     setSavedDestinations(updated);
     localStorage.setItem('myTrips', JSON.stringify(updated));
+  };
+
+  const handleRemovePlanned = (tripId) => {
+    const updated = plannedTrips.filter(trip => trip.id !== tripId);
+    setPlannedTrips(updated);
+    localStorage.setItem('plannedTrips', JSON.stringify(updated));
   };
 
   const statusColor = {
@@ -43,15 +48,13 @@ function MyTrips() {
   const cardShadow = useColorModeValue('md', 'dark-lg');
 
   return (
-    <Box px={{ base: 50, md: 10 }} py={4} maxW="1000px" mx="auto">
+    <Box px={{ base: 4, md: 10 }} py={4} maxW="1000px" mx="auto">
       <Heading size="2xl" color="blue.700" mb={4}>My Trips</Heading>
-      
       <Divider borderColor="blue.400" mb={8} />
 
       {/* Saved Destinations */}
-      <Box mb={10} >
+      <Box mb={10}>
         <Heading size="md" mb={4} color="blue.600">Saved Destinations</Heading>
-        
         <VStack align="stretch" spacing={6}>
           {savedDestinations.length === 0 ? (
             <Text color="gray.500">No saved destinations.</Text>
@@ -64,22 +67,37 @@ function MyTrips() {
                 borderRadius="xl"
                 overflow="hidden"
               >
-                <Box width="300px"  borderRadius="lg" overflow="hidden">
-                <Image src={dest.image} alt={dest.name} objectFit="cover" width="100%" height="auto" />
-                </Box>
-                <Box p={6}>
-                  <Heading size="md" mb={2}>{dest.name}</Heading>
-                  <Text fontSize="sm" color="gray.600" mb={2}>{dest.description}</Text>
-                  <Text fontSize="xs" color="gray.500" mb={3}>Added on {dest.date}</Text>
-                  <HStack spacing={3}>
-                    <Button as={Link} to={`/DestinationDetails/${dest.id}`} size="sm" colorScheme="blue">
-                      View details
-                    </Button>
-                    <Button onClick={() => handleRemove(dest.id)} size="sm" colorScheme="red">
-                      Remove
-                    </Button>
-                  </HStack>
-                </Box>
+                <HStack spacing={4} p={4}>
+                  <Image
+                    src={dest.image}
+                    alt={dest.name}
+                    objectFit="cover"
+                    boxSize="100px"
+                    borderRadius="md"
+                  />
+                  <Box>
+                    <Heading size="sm">{dest.name}</Heading>
+                    <Text fontSize="sm" color="gray.600">{dest.description}</Text>
+                    <Text fontSize="xs" color="gray.500">Added on {dest.dateAdded}</Text>
+                    <HStack spacing={3} mt={2}>
+                      <Button
+                        as={Link}
+                        to={`/DestinationDetails/${dest.id}`}
+                        size="xs"
+                        colorScheme="blue"
+                      >
+                        View Details
+                      </Button>
+                      <Button
+                        onClick={() => handleRemoveSaved(dest.id)}
+                        size="xs"
+                        colorScheme="red"
+                      >
+                        Remove
+                      </Button>
+                    </HStack>
+                  </Box>
+                </HStack>
               </Box>
             ))
           )}
@@ -94,9 +112,9 @@ function MyTrips() {
           {plannedTrips.length === 0 ? (
             <Text color="gray.500">No planned trips.</Text>
           ) : (
-            plannedTrips.map((trip, index) => (
+            plannedTrips.map((trip) => (
               <Box
-                key={index}
+                key={trip.id}
                 p={5}
                 bg={cardBg}
                 shadow={cardShadow}
@@ -104,12 +122,18 @@ function MyTrips() {
               >
                 <Heading size="sm" mb={1}>{trip.title}</Heading>
                 <Text fontSize="xs" color="gray.500">Date: {trip.date}</Text>
-                <Text mt={1} fontSize="sm">Destinations: {trip.destinations.join(', ')}</Text>
+                {Array.isArray(trip.destinations) && trip.destinations.length > 0 && (
+                  <Text mt={1} fontSize="sm">
+                    Destinations: {trip.destinations.join(', ')}
+                  </Text>
+                )}
                 <Flex align="center" mt={2}>
                   <Text fontSize="sm" mr={2}>Status:</Text>
                   <Badge colorScheme={statusColor[trip.status] || 'gray'}>{trip.status}</Badge>
                   <Spacer />
-                  <Button size="sm" colorScheme="blue">Edit trip</Button>
+                  <Button size="xs" colorScheme="red" onClick={() => handleRemovePlanned(trip.id)}>
+                    Remove
+                  </Button>
                 </Flex>
               </Box>
             ))

@@ -13,15 +13,16 @@ import {
   CardFooter,
   HStack,
   useColorModeValue,
-  Divider
+  Divider,
+  useToast
 } from '@chakra-ui/react';
 import { Link } from 'react-router-dom';
 import destinationsData from '../data/destinations.json';
 
-
 function Home() {
   const [destinations, setDestinations] = useState([]);
   const [search, setSearch] = useState('');
+  const toast = useToast();
 
   useEffect(() => {
     setDestinations(destinationsData);
@@ -31,16 +32,44 @@ function Home() {
     dest.name.toLowerCase().includes(search.toLowerCase())
   );
 
+  const handleSave = (destination) => {
+    const trips = JSON.parse(localStorage.getItem('myTrips')) || [];
+    const exists = trips.find(t => t.id === destination.id);
+
+    if (exists) {
+      toast({
+        title: 'Already saved',
+        status: 'info',
+        duration: 2000,
+        isClosable: true,
+        psition: 'top-center'
+
+      });
+      return;
+    }
+
+    const newTrip = {
+      ...destination,
+      dateAdded: new Date().toLocaleDateString(),
+    };
+    localStorage.setItem('myTrips', JSON.stringify([...trips, newTrip]));
+    toast({
+      title: 'Saved to My Trips',
+      status: 'success',
+      duration: 2000,
+      isClosable: true,
+      position: 'top-center'
+    });
+  };
+
   const cardBg = useColorModeValue('white', 'gray.800');
   const cardShadow = useColorModeValue('md', 'dark-lg');
-  
 
   return (
     <Box>
-      
       {/* Hero Section */}
       <Box bg="blue.500" color="white" py={12} px={4} textAlign="center" margin={12} borderRadius="xl">
-        <VStack spacing={6} >
+        <VStack spacing={6}>
           <Heading size="2xl" fontWeight="bold">
             Discover Amazing Places
           </Heading>
@@ -79,7 +108,7 @@ function Home() {
         <Heading size="lg" mb={4} color="blue.500">
           Popular Destinations
         </Heading>
-        
+
         <Divider borderColor="blue.500" borderWidth="2px" />
         <Divider mb={4} />
         <br />
@@ -104,13 +133,12 @@ function Home() {
                 <Text noOfLines={3} fontSize="sm" color="gray.600">
                   {dest.description}
                 </Text>
-                <HStack mt={3}>
+                <HStack mt={3} spacing={1} align="center">
                   <Text fontWeight="bold" fontSize="sm" color="yellow.500">★</Text>
                   <Text fontSize="sm" fontWeight="medium">{dest.rating}/5</Text>
-                  
                 </HStack>
               </CardBody>
-              <CardFooter>
+              <CardFooter justifyContent="space-between">
                 <Button
                   as={Link}
                   to={`/DestinationDetails/${dest.id}`}
@@ -119,6 +147,15 @@ function Home() {
                   borderRadius="full"
                 >
                   View Details
+                </Button>
+                <Button
+                  onClick={() => handleSave(dest)}
+                  colorScheme="green"
+                  size="sm"
+                  borderRadius="full"
+                  variant="outline"
+                >
+                  Save
                 </Button>
               </CardFooter>
             </Card>
