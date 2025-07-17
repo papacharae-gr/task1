@@ -31,6 +31,38 @@ function DestinationDetails() {
   const cardBg = useColorModeValue('white', 'gray.800');
   const sidebarBg = useColorModeValue('gray.50', 'gray.700');
 
+  if (!id) {
+    return (
+      <Box px={{ base: 4, md: 10 }} py={8} maxW="1000px" mx="auto">
+        <Heading size="xl" mb={8}>All Destinations</Heading>
+        <SimpleGrid columns={{ base: 1, md: 3 }} spacing={8}>
+          {destinations.map(destination => (
+            <Box key={destination.id} bg={cardBg} p={5} borderRadius="lg" shadow="md">
+              <Image
+                src={destination.image}
+                alt={destination.name}
+                borderRadius="xl"
+                mb={4}
+                objectFit="cover"
+                height="180px"
+                width="100%"
+              />
+              <Heading size="md" mb={2}>{destination.name}</Heading>
+              <Text fontSize="sm" mb={2}>{destination.description}</Text>
+              <Button
+                colorScheme="blue"
+                onClick={() => navigate(`/DestinationDetails/${destination.id}`)}
+                mt={2}
+              >
+                View Details
+              </Button>
+            </Box>
+          ))}
+        </SimpleGrid>
+      </Box>
+    );
+  }     
+
   const destination = destinations.find(dest => dest.id === id);
 
   if (!destination) {
