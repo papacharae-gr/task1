@@ -31,7 +31,7 @@ function Navbar() {
     <Box bg={bg} px={6} py={4} shadow="md">
       <Flex justify="space-between" align="center">
         <Heading size="md" color="white">
-          <Link to="/">🌍 TravelGuide</Link>
+          <Link to="/">🌍 Travel Guide</Link>
         </Heading>
 
         <Tabs

@@ -14,8 +14,9 @@ import {
   HStack,
   useColorModeValue,
   Divider,
-  useToast
+  useToast,
 } from '@chakra-ui/react';
+import { StarIcon } from '@chakra-ui/icons';
 import { Link } from 'react-router-dom';
 import destinationsData from '../data/destinations.json';
 
@@ -134,8 +135,14 @@ function Home() {
                   {dest.description}
                 </Text>
                 <HStack mt={3} spacing={1} align="center">
-                  <Text fontWeight="bold" fontSize="sm" color="yellow.500">★</Text>
-                  <Text fontSize="sm" fontWeight="medium">{dest.rating}/5</Text>
+                  {Array(5)
+                    .fill('')
+                    .map((_, i) => (
+                      <StarIcon
+                        key={i}
+                        color={i < dest.rating ? 'yellow.400' : 'gray.300'}
+                      />
+                    ))}
                 </HStack>
               </CardBody>
               <CardFooter justifyContent="space-between">

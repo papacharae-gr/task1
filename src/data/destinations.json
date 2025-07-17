@@ -24,7 +24,7 @@
   {
     "id": "tokyo",
     "name": "Tokyo, Japan",
-    "rating": 4.9,
+    "rating": 3,
     "image": "https://i0.wp.com/www.touristjapan.com/wp-content/uploads/2025/02/map-of-tokyo-japan-travel-scaled.jpg?fit=2560%2C1707&ssl=1",
     "description": "Modern metropolis blending tradition with cutting-edge technology.",
     "tagline": "Tradition Meets Innovation",
@@ -46,7 +46,7 @@
   {
     "id": "new-york",
     "name": "New York, USA",
-    "rating": 4.6,
+    "rating": 3.5,
     "image": "https://as2.ftcdn.net/v2/jpg/02/78/13/67/1000_F_278136770_gtY679gEBnbKWhEjX40n7XmoMxcEt76P.jpg",
     "description": "The city that never sleeps, full of energy and endless possibilities.",
     "tagline": "The City That Never Sleeps",
