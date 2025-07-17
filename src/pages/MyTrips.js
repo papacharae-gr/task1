@@ -15,6 +15,7 @@ import {
 } from '@chakra-ui/react';
 import { Link } from 'react-router-dom';
 
+
 function MyTrips() {
   const [savedDestinations, setSavedDestinations] = useState([]);
   const [plannedTrips, setPlannedTrips] = useState([]);
@@ -44,11 +45,13 @@ function MyTrips() {
   return (
     <Box px={{ base: 50, md: 10 }} py={4} maxW="1000px" mx="auto">
       <Heading size="2xl" color="blue.700" mb={4}>My Trips</Heading>
+      
       <Divider borderColor="blue.400" mb={8} />
 
       {/* Saved Destinations */}
       <Box mb={10} >
-        <Heading size="md" mb={4} color="gray.700">Saved Destinations</Heading>
+        <Heading size="md" mb={4} color="blue.600">Saved Destinations</Heading>
+        
         <VStack align="stretch" spacing={6}>
           {savedDestinations.length === 0 ? (
             <Text color="gray.500">No saved destinations.</Text>
@@ -61,7 +64,9 @@ function MyTrips() {
                 borderRadius="xl"
                 overflow="hidden"
               >
-                <Image src={dest.image} alt={dest.name} borderRadius="xl" mb={8} objectFit="cover" width="100%" height="250px" />
+                <Box width="300px"  borderRadius="lg" overflow="hidden">
+                <Image src={dest.image} alt={dest.name} objectFit="cover" width="100%" height="auto" />
+                </Box>
                 <Box p={6}>
                   <Heading size="md" mb={2}>{dest.name}</Heading>
                   <Text fontSize="sm" color="gray.600" mb={2}>{dest.description}</Text>
@@ -83,7 +88,7 @@ function MyTrips() {
 
       {/* Planned Trips */}
       <Box>
-        <Heading size="md" mb={4} color="gray.700">Planned Trips</Heading>
+        <Heading size="md" mb={4} color="blue.600">Planned Trips</Heading>
         <Divider borderColor="blue.400" mb={4} />
         <VStack align="stretch" spacing={6}>
           {plannedTrips.length === 0 ? (
