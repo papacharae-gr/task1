@@ -53,7 +53,7 @@ function DestinationDetails() {
         dateAdded: new Date().toLocaleDateString(),
       };
       localStorage.setItem('myTrips', JSON.stringify([...trips, newTrip]));
-      toast({ title: 'Saved!', status: 'success', duration: 2000, isClosable: true });
+      toast({ title: 'Saved!', status: 'success', duration: 2000, isClosable: true, position: 'top-center' });
     } else {
       toast({ title: 'Already in My Trips.', status: 'info', duration: 2000, isClosable: true, position: 'top-center' });
     }
@@ -62,7 +62,7 @@ function DestinationDetails() {
   const handleAddPlannedTrip = (tripData) => {
     const plannedTrips = JSON.parse(localStorage.getItem('plannedTrips')) || [];
     localStorage.setItem('plannedTrips', JSON.stringify([...plannedTrips, tripData]));
-    toast({ title: 'Trip Planned!', status: 'success', duration: 3000, isClosable: true });
+    toast({ title: 'Trip Planned!', status: 'success', duration: 3000, isClosable: true, position: 'top-center' });
   };
 
   return (

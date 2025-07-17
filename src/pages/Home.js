@@ -42,8 +42,8 @@ function Home() {
         status: 'info',
         duration: 2000,
         isClosable: true,
-        psition: 'top-center'
-
+        position: 'top-center',
+        
       });
       return;
     }
