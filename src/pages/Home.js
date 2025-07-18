@@ -19,6 +19,7 @@ import {
 import { StarIcon } from '@chakra-ui/icons';
 import { Link } from 'react-router-dom';
 import destinationsData from '../data/destinations.json';
+import PageContainer from '../components/PageContainer';
 
 function Home() {
   const [destinations, setDestinations] = useState([]);
@@ -79,6 +80,7 @@ function Home() {
   const cardShadow = useColorModeValue('md', 'dark-lg');
 
   return (
+    <PageContainer>
     <Box>
       {/* Hero Section */}
       <Box bg="blue.500" color="white" py={12} px={4} textAlign="center" margin={12} borderRadius="xl">
@@ -182,6 +184,7 @@ function Home() {
         </Grid>
       </Box>
     </Box>
+    </PageContainer>
   );
 }
 
