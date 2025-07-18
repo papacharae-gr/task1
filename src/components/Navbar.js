@@ -88,7 +88,7 @@ function Navbar() {
         {/* Drawer for mobile */}
         <Drawer placement="right" onClose={onClose} isOpen={isOpen}>
           <DrawerOverlay />
-          <DrawerContent bg={bg}>
+          <DrawerContent bg={bg} color="white">
             <DrawerBody>
               <Flex justify="flex-end" mt={2}>
                 <IconButton
