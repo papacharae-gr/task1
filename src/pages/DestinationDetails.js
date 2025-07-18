@@ -34,7 +34,25 @@ function DestinationDetails() {
   if (!id) {
     return (
       <Box px={{ base: 4, md: 10 }} py={8} maxW="1000px" mx="auto">
-        <Heading size="xl" mb={8}>All Destinations</Heading>
+        <Box
+          mb={8}
+          py={6}
+          borderRadius="xl"
+          bgGradient="linear(to-r, blue.400, teal.400)"
+          boxShadow="lg"
+          textAlign="center"
+        >
+          <HStack justify="center" spacing={3}>
+            <Icon as={FaMapMarkerAlt} boxSize={7} color="white" />
+            <Heading size="xl" color="white" letterSpacing="wide">
+              All Destinations
+            </Heading>
+          </HStack>
+          <Text color="whiteAlpha.800" fontSize="md" mt={2}>
+            Explore our curated list of amazing places around the world!
+          </Text>
+        </Box>
+
         <SimpleGrid columns={{ base: 1, md: 3 }} spacing={8}>
           {destinations.map(destination => (
             <Box key={destination.id} bg={cardBg} p={5} borderRadius="lg" shadow="md">
