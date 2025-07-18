@@ -179,7 +179,7 @@ function MyTrips() {
         {/* Edit Modal */}
         <Modal isOpen={isOpen} onClose={onClose}>
           <ModalOverlay />
-          <ModalContent>
+          <ModalContent maxW={{ base: '90%', sm: '500px', md: '600px' }} mx="auto" borderRadius={'lg'}>
             <ModalHeader>Edit Trip</ModalHeader>
             <ModalCloseButton />
             <ModalBody>

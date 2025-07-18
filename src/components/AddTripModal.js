@@ -62,7 +62,7 @@ function AddTripModal({ isOpen, onClose, onAddTrip, defaultDestination = '' }) {
   return (
     <Modal isOpen={isOpen} onClose={onClose} isCentered>
       <ModalOverlay />
-      <ModalContent>
+      <ModalContent maxW={{ base: '90%', sm: '500px', md: '600px' }}mx="auto" borderRadius={'lg'} > 
         <ModalHeader>Add New Trip</ModalHeader>
         <ModalCloseButton />
         <ModalBody>
