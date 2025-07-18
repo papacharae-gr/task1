@@ -43,7 +43,7 @@ function DestinationDetails() {
           textAlign="center"
         >
           <HStack justify="center" spacing={3}>
-            <Icon as={FaMapMarkerAlt} boxSize={7} color="white" />
+            <Icon as={FaMapMarkerAlt} boxSize={7} color="white" /> places around th
             <Heading size="xl" color="white" letterSpacing="wide">
               All Destinations
             </Heading>
