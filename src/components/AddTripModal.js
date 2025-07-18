@@ -26,9 +26,11 @@ function AddTripModal({ isOpen, onClose, onAddTrip, defaultDestination = '' }) {
   const toast = useToast();
 
   const handleSubmit = () => {
-    if (!title || !startDate || !endDate || destinations.length === 0) {
+    const start = new Date(startDate);
+    const end = new Date(endDate);
+    if (!title || !startDate || !endDate || destinations.length === 0 || end < start ) {
       toast({
-        title: 'Missing fields',
+        title: 'Missing or invalidfields',
         description: 'Please fill in all required fields.',
         status: 'warning',
         duration: 3000,
@@ -93,7 +95,7 @@ function AddTripModal({ isOpen, onClose, onAddTrip, defaultDestination = '' }) {
               </Select>
             </FormControl>
 
-            {/* Αν θέλεις να επιτρέψεις custom επιλογή προορισμών, μπορείς να προσθέσεις input ή select */}
+            
           </VStack>
         </ModalBody>
         <ModalFooter>

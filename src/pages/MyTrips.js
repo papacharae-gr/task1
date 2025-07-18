@@ -26,6 +26,7 @@ import {
   Select,
   useDisclosure,
 } from '@chakra-ui/react';
+import PageContainer from '../components/PageContainer';
 
 function MyTrips() {
   const [savedDestinations, setSavedDestinations] = useState([]);
@@ -76,6 +77,7 @@ function MyTrips() {
   const cardShadow = useColorModeValue('md', 'dark-lg');
 
   return (
+    <PageContainer>
     <Box px={{ base: 4, md: 10 }} py={4} maxW="1000px" mx="auto">
       <Heading size="2xl" color="blue.700" mb={4}>My Trips</Heading>
       <Divider borderColor="blue.400" mb={8} />
@@ -219,6 +221,7 @@ function MyTrips() {
         </Modal>
       </Box>
     </Box>
+  </PageContainer>
   );
 }
 

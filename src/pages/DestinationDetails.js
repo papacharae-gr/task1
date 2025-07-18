@@ -21,6 +21,7 @@ import { useParams, useNavigate } from 'react-router-dom';
 import destinations from '../data/destinations.json';
 import AddTripModal from '../components/AddTripModal';
 import React from 'react';
+import PageContainer from '../components/PageContainer';
 
 function DestinationDetails() {
   const { id } = useParams();
@@ -116,6 +117,7 @@ function DestinationDetails() {
   };
 
   return (
+    <PageContainer>
     <Box px={{ base: 4, md: 10 }} py={8} maxW="1000px" mx="auto">
       {/* Header */}
       <VStack spacing={2} textAlign="center" mb={8}>
@@ -196,6 +198,7 @@ function DestinationDetails() {
         </VStack>
       </SimpleGrid>
     </Box>
+    </PageContainer>
   );
 }
 
