@@ -29,8 +29,20 @@ function Home() {
     setDestinations(destinationsData);
   }, []);
 
-  const filteredDestinations = destinations.filter(dest =>
-    dest.name.toLowerCase().includes(search.toLowerCase())
+  const filteredDestinations = destinations
+    .filter(dest =>
+      dest.name.toLowerCase().includes(search.toLowerCase()) || 
+      dest.description.toLowerCase().includes(search.toLowerCase())
+    )
+    .sort((a, b) => {
+      if (b.rating !== a.rating) {
+        return b.rating - a.rating; // Sort by rating first
+      }
+      return a.name.localeCompare(b.name); // Then alphabetically by name
+    })
+    .slice(0, 3) // Show only top 3 destinations
+    .filter(dest =>
+      dest.name.toLowerCase().includes(search.toLowerCase())
   );
 
   const handleSave = (destination) => {
