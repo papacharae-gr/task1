@@ -40,6 +40,12 @@ function MyTrips() {
   };
 
   const handleEditSave = () => {
+    if (editTrip.returnDate && editTrip.departureDate && 
+        new Date(editTrip.returnDate) < new Date(editTrip.departureDate)) {
+      alert('Return date cannot be earlier than departure date');
+      return;
+    }
+    
     const updatedTrips = plannedTrips.map(trip =>
       trip.id === editTrip.id ? editTrip : trip
     );
@@ -201,6 +207,7 @@ function MyTrips() {
                 type="date"
                 value={editTrip?.returnDate || ''}
                 onChange={(e) => SetEditTrip({ ...editTrip, returnDate: e.target.value })}
+                min={editTrip?.departureDate || ''} // <-- This restricts the selection
                 mb={4}
               />
               <Select
