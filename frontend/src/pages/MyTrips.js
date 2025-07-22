@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { tripsAPI } from '../services/api'; // <-- Πρόσθεσε αυτό
+import { tripsAPI } from '../services/api';
 import {
   Box,
   Heading,
@@ -12,33 +12,24 @@ import {
   Flex,
   Spacer,
   Image,
-  useColorModeValue
-} from '@chakra-ui/react';
-import { Link } from 'react-router-dom';
-import {
-  Modal,
-  ModalOverlay,
-  ModalContent,
-  ModalHeader,
-  ModalFooter,
-  ModalBody,
-  ModalCloseButton,
-  Input,
-  Select,
+  useColorModeValue,
   useDisclosure,
 } from '@chakra-ui/react';
+import { Link } from 'react-router-dom';
 import PageContainer from '../components/PageContainer';
+import EditTripModal from '../components/EditTripModal'; // <-- Import το νέο modal
 
 function MyTrips() {
   const [savedDestinations, setSavedDestinations] = useState([]);
   const [plannedTrips, setPlannedTrips] = useState([]);
-  const [editTrip, SetEditTrip] = useState(null);
+  const [editTrip, setEditTrip] = useState(null);
   const [loading, setLoading] = useState(true);
   const { isOpen, onOpen, onClose } = useDisclosure();
 
   // Function to handle editing a trip
   const handleEditClick = (trip) => {
-    SetEditTrip(trip);
+    console.log('Editing trip:', trip);
+    setEditTrip(trip);
     onOpen();
   };
 
@@ -71,7 +62,7 @@ function MyTrips() {
   const handleRemoveSaved = async (id) => {
     try {
       await tripsAPI.removeSaved(id);
-      fetchSavedDestinations(); // Ανανέωση λίστας
+      fetchSavedDestinations();
     } catch (error) {
       console.error('Error removing saved destination:', error);
     }
@@ -80,32 +71,27 @@ function MyTrips() {
   const handleRemovePlanned = async (tripId) => {
     try {
       await tripsAPI.removePlanned(tripId);
-      fetchPlannedTrips(); // Ανανέωση λίστας
+      fetchPlannedTrips();
     } catch (error) {
       console.error('Error removing planned trip:', error);
     }
   };
 
-  const handleEditSave = async () => {
-    if (editTrip.return_date && editTrip.departure_date && 
-        new Date(editTrip.return_date) < new Date(editTrip.departure_date)) {
-      alert('Return date cannot be earlier than departure date');
-      return;
-    }
-
+  // Simplified save function for the modal
+  const handleEditSave = async (tripData) => {
     try {
-      await tripsAPI.updatePlanned(editTrip.id, {
-        title: editTrip.title,
-        departureDate: editTrip.departure_date,
-        returnDate: editTrip.return_date,
-        status: editTrip.status,
-        destinations: editTrip.destinations,
+      await tripsAPI.updatePlanned(tripData.id, {
+        title: tripData.title,
+        departureDate: tripData.departureDate, // <-- Frontend uses camelCase
+        returnDate: tripData.returnDate,       // <-- Frontend uses camelCase
+        status: tripData.status,
+        destinations: tripData.destinations,
       });
 
-      fetchPlannedTrips(); // Ανανέωση λίστας
-      onClose();
+      await fetchPlannedTrips(); // <-- Ανανέωση λίστας
     } catch (error) {
       console.error('Error updating planned trip:', error);
+      throw error; // <-- Throw για το EditTripModal
     }
   };
 
@@ -130,151 +116,118 @@ function MyTrips() {
 
   return (
     <PageContainer>
-    <Box px={{ base: 4, md: 10 }} py={4} maxW="1000px" mx="auto">
-      <Heading size="2xl" color="blue.700" mb={4}>My Trips</Heading>
-      <Divider borderColor="blue.400" mb={8} />
+      <Box px={{ base: 4, md: 10 }} py={4} maxW="1000px" mx="auto">
+        <Heading size="2xl" color="blue.700" mb={4}>My Trips</Heading>
+        <Divider borderColor="blue.400" mb={8} />
 
-      {/* Saved Destinations */}
-      <Box mb={10}>
-        <Heading size="md" mb={4} color="blue.600">Saved Destinations</Heading>
-        <VStack align="stretch" spacing={6}>
-          {savedDestinations.length === 0 ? (
-            <Text color="gray.500">No saved destinations.</Text>
-          ) : (
-            savedDestinations.map(dest => (
-              <Box
-                key={dest.id}
-                bg={cardBg}
-                shadow={cardShadow}
-                borderRadius="xl"
-                overflow="hidden"
-              >
-                <HStack spacing={4} p={4}>
-                  <Image
-                    src={dest.image}
-                    alt={dest.name}
-                    objectFit="cover"
-                    boxSize="100px"
-                    borderRadius="md"
-                  />
-                  <Box>
-                    <Heading size="sm">{dest.name}</Heading>
-                    <Text fontSize="sm" color="gray.600">{dest.description}</Text>
-                    <Text fontSize="xs" color="gray.500">Added on {dest.dateAdded}</Text>
-                    <HStack spacing={3} mt={2}>
-                      <Button
-                        as={Link}
-                        to={`/DestinationDetails/${dest.id}`}
-                        size="xs"
-                        colorScheme="blue"
-                      >
-                        View Details
-                      </Button>
-                      <Button
-                        onClick={() => handleRemoveSaved(dest.id)}
-                        size="xs"
-                        colorScheme="red"
-                      >
-                        Remove
-                      </Button>
-                    </HStack>
-                  </Box>
-                </HStack>
-              </Box>
-            ))
-          )}
-        </VStack>
-      </Box>
+        {/* Saved Destinations */}
+        <Box mb={10}>
+          <Heading size="md" mb={4} color="blue.600">Saved Destinations</Heading>
+          <VStack align="stretch" spacing={6}>
+            {savedDestinations.length === 0 ? (
+              <Text color="gray.500">No saved destinations.</Text>
+            ) : (
+              savedDestinations.map(dest => (
+                <Box
+                  key={dest.id}
+                  bg={cardBg}
+                  shadow={cardShadow}
+                  borderRadius="xl"
+                  overflow="hidden"
+                >
+                  <HStack spacing={4} p={4}>
+                    <Image
+                      src={dest.image}
+                      alt={dest.name}
+                      objectFit="cover"
+                      boxSize="100px"
+                      borderRadius="md"
+                    />
+                    <Box>
+                      <Heading size="sm">{dest.name}</Heading>
+                      <Text fontSize="sm" color="gray.600">{dest.description}</Text>
+                      <Text fontSize="xs" color="gray.500">Added on {dest.date_added}</Text>
+                      <HStack spacing={3} mt={2}>
+                        <Button
+                          as={Link}
+                          to={`/DestinationDetails/${dest.id}`}
+                          size="xs"
+                          colorScheme="blue"
+                        >
+                          View Details
+                        </Button>
+                        <Button
+                          onClick={() => handleRemoveSaved(dest.id)}
+                          size="xs"
+                          colorScheme="red"
+                        >
+                          Remove
+                        </Button>
+                      </HStack>
+                    </Box>
+                  </HStack>
+                </Box>
+              ))
+            )}
+          </VStack>
+        </Box>
 
-      {/* Planned Trips */}
-      <Box>
-        <Heading size="md" mb={4} color="blue.600">Planned Trips</Heading>
-        <Divider borderColor="blue.400" mb={4} />
-        <VStack align="stretch" spacing={6}>
-          {plannedTrips.length === 0 ? (
-            <Text color="gray.500">No planned trips.</Text>
-          ) : (
-            plannedTrips.map((trip) => (
-              <Box
-                key={trip.id}
-                p={5}
-                bg={cardBg}
-                shadow={cardShadow}
-                borderRadius="xl"
-              >
-                <Heading size="sm" mb={1}>{trip.title}</Heading>
-                <Text fontSize="xs" color="gray.500">
-                  Depareture: {trip.departure_date || '-'} | Return: {trip.return_date || '-'}
-                </Text>
-                {Array.isArray(trip.destinations) && trip.destinations.length > 0 && (
-                  <Text mt={1} fontSize="sm">
-                    Destinations: {trip.destinations.join(', ')}
+        {/* Planned Trips */}
+        <Box>
+          <Heading size="md" mb={4} color="blue.600">Planned Trips</Heading>
+          <Divider borderColor="blue.400" mb={4} />
+          <VStack align="stretch" spacing={6}>
+            {plannedTrips.length === 0 ? (
+              <Text color="gray.500">No planned trips.</Text>
+            ) : (
+              plannedTrips.map((trip) => (
+                <Box
+                  key={trip.id}
+                  p={5}
+                  bg={cardBg}
+                  shadow={cardShadow}
+                  borderRadius="xl"
+                >
+                  <Heading size="sm" mb={1}>{trip.title}</Heading>
+                  <Text fontSize="xs" color="gray.500">
+                    Departure: {trip.departure_date || '-'} | Return: {trip.return_date || '-'}
                   </Text>
-                )}
-                <Flex align="center" mt={2}>
-                  <Text fontSize="sm" mr={2}>Status:</Text>
-                  <Badge colorScheme={statusColor[trip.status] || 'gray'}>{trip.status}</Badge>
-                  <Spacer />
-                  {trip.status === 'Planning' && (
-                    <Button size="xs" colorScheme="yellow" mr={1} onClick={() => handleEditClick(trip)}>
-                      Edit
-                    </Button>
+                  {Array.isArray(trip.destinations) && trip.destinations.length > 0 && (
+                    <Text mt={1} fontSize="sm">
+                      Destinations: {trip.destinations.join(', ')}
+                    </Text>
                   )}
-                  <Button size="xs" colorScheme="red" onClick={() => handleRemovePlanned(trip.id)}>
-                    Remove
-                  </Button>
-                </Flex>
-              </Box>
-            ))
-          )}
-        </VStack>
+                  <Flex align="center" mt={2}>
+                    <Text fontSize="sm" mr={2}>Status:</Text>
+                    <Badge colorScheme={statusColor[trip.status] || 'gray'}>{trip.status}</Badge>
+                    <Spacer />
+                    {trip.status === 'Planning' && (
+                      <Button size="xs" colorScheme="yellow" mr={1} onClick={() => handleEditClick(trip)}>
+                        Edit
+                      </Button>
+                    )}
+                    <Button size="xs" colorScheme="red" onClick={() => handleRemovePlanned(trip.id)}>
+                      Remove
+                    </Button>
+                  </Flex>
+                </Box>
+              ))
+            )}
+          </VStack>
+        </Box>
+
         {/* Edit Modal */}
-        <Modal isOpen={isOpen} onClose={onClose}>
-          <ModalOverlay />
-          <ModalContent maxW={{ base: '90%', sm: '500px', md: '600px' }} mx="auto" borderRadius={'lg'}>
-            <ModalHeader>Edit Trip</ModalHeader>
-            <ModalCloseButton />
-            <ModalBody>
-              <Input
-                placeholder="Trip Title"
-                value={editTrip?.title || ''}
-                onChange={(e) => SetEditTrip({ ...editTrip, title: e.target.value })}
-                mb={3}
-              />
-              <Input
-                placeholder="Departure Date"
-                type="date"
-                value={editTrip?.departure_date || ''}
-                onChange={(e) => SetEditTrip({ ...editTrip, departure_date: e.target.value })}
-                mb={3}
-              />
-              <Input
-                placeholder="Return Date"
-                type="date"
-                value={editTrip?.return_date || ''}
-                onChange={(e) => SetEditTrip({ ...editTrip, return_date: e.target.value })}
-                min={editTrip?.departure_date || ''} // <-- This restricts the selection
-                mb={4}
-              />
-              <Select
-                placeholder="Select Status"
-                value={editTrip?.status || ''}
-                onChange={(e) => SetEditTrip({ ...editTrip, status: e.target.value })}
-              >
-                <option value="Planning">Planning</option>
-                <option value="Confirmed">Confirmed</option>
-                <option value="Cancelled">Cancelled</option>
-              </Select>
-            </ModalBody>
-            <ModalFooter>
-              <Button colorScheme="blue" onClick={handleEditSave}>Save</Button>
-              <Button ml={3} onClick={onClose}>Cancel</Button>
-            </ModalFooter>
-          </ModalContent>
-        </Modal>
+        <EditTripModal
+          isOpen={isOpen}
+          onClose={() => {
+            setEditTrip(null);
+            onClose(); // Αυτό καλεί το onClose από useDisclosure
+          }}
+          trip={editTrip}
+          onSave={handleEditSave}
+        />
       </Box>
-    </Box>
-  </PageContainer>
+    </PageContainer>
   );
 }
 
