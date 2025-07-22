@@ -59,7 +59,15 @@ function DestinationDetails() {
   const fetchDestination = useCallback(async (destinationId) => {
     try {
       const response = await destinationsAPI.getById(destinationId);
-      setDestination(response.data);
+      const data = response.data;
+      
+      // Πρόσθεσε default values για missing fields
+      setDestination({
+        ...data,
+        attractions: data.attractions || [],
+        cuisine: data.cuisine || 'Information not available',
+        tripInfo: data.tripInfo || data.trip_info || {},
+      });
     } catch (error) {
       console.error('Error fetching destination:', error);
       setDestination(null);
@@ -218,12 +226,12 @@ function DestinationDetails() {
               <HStack><Icon as={FaMapMarkerAlt} /> <Text>Top Attractions</Text></HStack>
             </Heading>
             <List spacing={2} fontSize="sm">
-              {destination.attractions.map(item => (
+              {destination?.attractions?.map(item => (
                 <ListItem key={item}>
                   <ListIcon as={FaCheckCircle} color="green.500" />
                   {item}
                 </ListItem>
-              ))}
+              )) || <Text fontSize="sm" color="gray.500">No attractions available</Text>}
             </List>
           </Box>
 
@@ -232,7 +240,7 @@ function DestinationDetails() {
             <Heading size="md" mb={2}>
               <HStack><Icon as={FaUtensils} /> <Text>Local Cuisine</Text></HStack>
             </Heading>
-            <Text fontSize="sm">{destination.cuisine}</Text>
+            <Text fontSize="sm">{destination?.cuisine || 'Information not available'}</Text>
           </Box>
         </Stack>
 
@@ -240,10 +248,14 @@ function DestinationDetails() {
         <VStack spacing={4} align="stretch">
           <Box bg={sidebarBg} p={5} borderRadius="lg" shadow="md">
             <Heading size="sm" mb={3}>Trip Information</Heading>
-            {Object.entries(destination.tripInfo).map(([key, value]) => (
-              <Text key={key} fontSize="sm"><b>{key}:</b> {value}</Text>
-            ))}
-            <Text mt={3}><b>Rating:</b> ⭐ {destination.rating} / 5</Text>
+            {destination?.tripInfo || destination?.trip_info ? (
+              Object.entries(destination.tripInfo || destination.trip_info).map(([key, value]) => (
+                <Text key={key} fontSize="sm"><b>{key}:</b> {value}</Text>
+              ))
+            ) : (
+              <Text fontSize="sm" color="gray.500">No trip information available</Text>
+            )}
+            <Text mt={3}><b>Rating:</b> ⭐ {destination?.rating || 'N/A'} / 5</Text>
           </Box>
 
           <Button colorScheme="blue" onClick={handleSaveToMyTrips}>
