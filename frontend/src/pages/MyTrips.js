@@ -26,6 +26,32 @@ function MyTrips() {
   const [loading, setLoading] = useState(true);
   const { isOpen, onOpen, onClose } = useDisclosure();
 
+  // Helper function για format των ημερομηνιών
+  const formatDateDisplay = (dateString) => {
+    if (!dateString) return '-';
+    
+    try {
+      // Αν η ημερομηνία είναι ήδη σε YYYY-MM-DD format, επέστρεψέ την ως έχει
+      if (typeof dateString === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(dateString)) {
+        return dateString;
+      }
+      
+      // Αν είναι timestamp, κάνε το parsing με προσοχή
+      if (typeof dateString === 'string' && dateString.includes('T')) {
+        return dateString.split('T')[0]; // Παίρνει μόνο το date part
+      }
+      
+      // Fallback για άλλα formats
+      const date = new Date(dateString + 'T00:00:00'); // Force local timezone
+      if (isNaN(date.getTime())) return '-';
+      
+      return date.toISOString().split('T')[0];
+    } catch (error) {
+      console.error('Error formatting date:', error);
+      return '-';
+    }
+  };
+
   // Function to handle editing a trip
   const handleEditClick = (trip) => {
     console.log('Editing trip:', trip);
@@ -146,7 +172,7 @@ function MyTrips() {
                     <Box>
                       <Heading size="sm">{dest.name}</Heading>
                       <Text fontSize="sm" color="gray.600">{dest.description}</Text>
-                      <Text fontSize="xs" color="gray.500">Added on {dest.date_added}</Text>
+                      <Text fontSize="xs" color="gray.500">Added on {formatDateDisplay(dest.date_added)}</Text>
                       <HStack spacing={3} mt={2}>
                         <Button
                           as={Link}
@@ -190,7 +216,7 @@ function MyTrips() {
                 >
                   <Heading size="sm" mb={1}>{trip.title}</Heading>
                   <Text fontSize="xs" color="gray.500">
-                    Departure: {trip.departure_date || '-'} | Return: {trip.return_date || '-'}
+                    Departure: {formatDateDisplay(trip.departure_date)} | Return: {formatDateDisplay(trip.return_date)}
                   </Text>
                   {Array.isArray(trip.destinations) && trip.destinations.length > 0 && (
                     <Text mt={1} fontSize="sm">

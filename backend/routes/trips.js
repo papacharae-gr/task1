@@ -12,7 +12,7 @@ router.get('/saved', async (req, res) => {
       FROM user_trips ut
       JOIN destinations d ON ut.destination_id = d.id
       WHERE ut.user_id = $1
-      ORDER BY ut.date_added DESC
+      ORDER BY ut.id DESC  -- Άλλαξε από ut.date_added DESC
     `;
     
     const result = await pool.query(query, [userId]);
@@ -78,7 +78,13 @@ router.get('/planned', async (req, res) => {
     const userId = req.query.userId || 'default_user';
     
     const result = await pool.query(
-      'SELECT * FROM planned_trips WHERE user_id = $1 ORDER BY created_at DESC',
+      `SELECT id, title, 
+       departure_date::date as departure_date,  -- Force date-only format
+       return_date::date as return_date,        -- Force date-only format
+       status, destinations, user_id
+       FROM planned_trips 
+       WHERE user_id = $1 
+       ORDER BY id DESC`,
       [userId]
     );
     
@@ -113,7 +119,7 @@ router.put('/planned/:id', async (req, res) => {
     const { title, departureDate, returnDate, status, destinations } = req.body;
     
     const result = await pool.query(
-      'UPDATE planned_trips SET title = $1, departure_date = $2, return_date = $3, status = $4, destinations = $5, updated_at = NOW() WHERE id = $6 RETURNING *',
+      'UPDATE planned_trips SET title = $1, departure_date = $2, return_date = $3, status = $4, destinations = $5 WHERE id = $6 RETURNING *',
       [title, departureDate, returnDate, status, destinations, id]
     );
     

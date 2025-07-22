@@ -23,24 +23,37 @@ function EditTripModal({ isOpen, onClose, trip, onSave }) {
     status: 'Planning',
     destinations: [],
   });
+
   const toast = useToast();
 
-  // Populate form when trip changes
+  // ✅ Χωρίς timezone bug
+  const formatDateForInput = (dateValue) => {
+    if (!dateValue) return '';
+
+    try {
+      const date = new Date(dateValue);
+      if (isNaN(date.getTime())) {
+        console.warn('Invalid date:', dateValue);
+        return '';
+      }
+
+      // Επιστρέφει YYYY-MM-DD σε local time, χωρίς μετατόπιση ώρας
+      return date.toLocaleDateString('en-CA');
+    } catch (error) {
+      console.error('Error formatting date:', error);
+      return '';
+    }
+  };
+
   useEffect(() => {
-    console.log('Trip prop changed:', trip); // <-- Πρόσθεσε αυτό
     if (trip) {
-      console.log('Setting form data with:', {
-        title: trip.title,
-        departureDate: trip.departure_date,
-        returnDate: trip.return_date,
-        status: trip.status,
-        destinations: trip.destinations,
-      }); // <-- Και αυτό
+      const formattedDepartureDate = formatDateForInput(trip.departure_date);
+      const formattedReturnDate = formatDateForInput(trip.return_date);
 
       setFormData({
         title: trip.title || '',
-        departureDate: trip.departure_date || '',
-        returnDate: trip.return_date || '',
+        departureDate: formattedDepartureDate,
+        returnDate: formattedReturnDate,
         status: trip.status || 'Planning',
         destinations: trip.destinations || [],
       });
@@ -48,7 +61,6 @@ function EditTripModal({ isOpen, onClose, trip, onSave }) {
   }, [trip]);
 
   const handleSave = async () => {
-    // Validation
     if (!formData.title || !formData.departureDate) {
       toast({
         title: 'Missing fields',
@@ -61,8 +73,8 @@ function EditTripModal({ isOpen, onClose, trip, onSave }) {
       return;
     }
 
-    if (formData.returnDate && formData.departureDate && 
-        new Date(formData.returnDate) < new Date(formData.departureDate)) {
+    if (formData.returnDate && formData.departureDate &&
+      new Date(formData.returnDate) < new Date(formData.departureDate)) {
       toast({
         title: 'Invalid date range',
         description: 'Return date cannot be earlier than departure date.',
@@ -75,7 +87,6 @@ function EditTripModal({ isOpen, onClose, trip, onSave }) {
     }
 
     try {
-      // Call parent save function
       await onSave({
         id: trip.id,
         title: formData.title,
@@ -85,7 +96,6 @@ function EditTripModal({ isOpen, onClose, trip, onSave }) {
         destinations: formData.destinations,
       });
 
-      // Show success message
       toast({
         title: 'Trip updated successfully!',
         status: 'success',
@@ -94,7 +104,6 @@ function EditTripModal({ isOpen, onClose, trip, onSave }) {
         position: 'top-center',
       });
 
-      // Close modal
       handleClose();
     } catch (error) {
       console.error('Error saving trip:', error);
@@ -109,7 +118,6 @@ function EditTripModal({ isOpen, onClose, trip, onSave }) {
   };
 
   const handleClose = () => {
-    // ΜΗΝ κάνεις reset το form εδώ - άσε το parent να το κάνει
     onClose();
   };
 
