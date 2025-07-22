@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import { tripsAPI } from '../services/api'; // <-- Πρόσθεσε αυτό
 import {
   Box,
   Heading,
@@ -32,45 +33,80 @@ function MyTrips() {
   const [savedDestinations, setSavedDestinations] = useState([]);
   const [plannedTrips, setPlannedTrips] = useState([]);
   const [editTrip, SetEditTrip] = useState(null);
+  const [loading, setLoading] = useState(true);
   const { isOpen, onOpen, onClose } = useDisclosure();
 
+  // Function to handle editing a trip
   const handleEditClick = (trip) => {
     SetEditTrip(trip);
     onOpen();
   };
 
-  const handleEditSave = () => {
-    if (editTrip.returnDate && editTrip.departureDate && 
-        new Date(editTrip.returnDate) < new Date(editTrip.departureDate)) {
+  // Φόρτωση δεδομένων από API
+  useEffect(() => {
+    fetchSavedDestinations();
+    fetchPlannedTrips();
+  }, []);
+
+  const fetchSavedDestinations = async () => {
+    try {
+      const response = await tripsAPI.getSaved();
+      setSavedDestinations(response.data);
+    } catch (error) {
+      console.error('Error fetching saved destinations:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const fetchPlannedTrips = async () => {
+    try {
+      const response = await tripsAPI.getPlanned();
+      setPlannedTrips(response.data);
+    } catch (error) {
+      console.error('Error fetching planned trips:', error);
+    }
+  };
+
+  const handleRemoveSaved = async (id) => {
+    try {
+      await tripsAPI.removeSaved(id);
+      fetchSavedDestinations(); // Ανανέωση λίστας
+    } catch (error) {
+      console.error('Error removing saved destination:', error);
+    }
+  };
+
+  const handleRemovePlanned = async (tripId) => {
+    try {
+      await tripsAPI.removePlanned(tripId);
+      fetchPlannedTrips(); // Ανανέωση λίστας
+    } catch (error) {
+      console.error('Error removing planned trip:', error);
+    }
+  };
+
+  const handleEditSave = async () => {
+    if (editTrip.return_date && editTrip.departure_date && 
+        new Date(editTrip.return_date) < new Date(editTrip.departure_date)) {
       alert('Return date cannot be earlier than departure date');
       return;
     }
-    
-    const updatedTrips = plannedTrips.map(trip =>
-      trip.id === editTrip.id ? editTrip : trip
-    );
-    setPlannedTrips(updatedTrips);
-    localStorage.setItem('plannedTrips', JSON.stringify(updatedTrips)); 
-    onClose();
-  };
 
-  useEffect(() => {
-    const saved = JSON.parse(localStorage.getItem('myTrips')) || [];
-    const planned = JSON.parse(localStorage.getItem('plannedTrips')) || [];
-    setSavedDestinations(saved);
-    setPlannedTrips(planned);
-  }, []);
+    try {
+      await tripsAPI.updatePlanned(editTrip.id, {
+        title: editTrip.title,
+        departureDate: editTrip.departure_date,
+        returnDate: editTrip.return_date,
+        status: editTrip.status,
+        destinations: editTrip.destinations,
+      });
 
-  const handleRemoveSaved = (id) => {
-    const updated = savedDestinations.filter(dest => dest.id !== id);
-    setSavedDestinations(updated);
-    localStorage.setItem('myTrips', JSON.stringify(updated));
-  };
-
-  const handleRemovePlanned = (tripId) => {
-    const updated = plannedTrips.filter(trip => trip.id !== tripId);
-    setPlannedTrips(updated);
-    localStorage.setItem('plannedTrips', JSON.stringify(updated));
+      fetchPlannedTrips(); // Ανανέωση λίστας
+      onClose();
+    } catch (error) {
+      console.error('Error updating planned trip:', error);
+    }
   };
 
   const statusColor = {
@@ -81,6 +117,16 @@ function MyTrips() {
 
   const cardBg = useColorModeValue('white', 'gray.800');
   const cardShadow = useColorModeValue('md', 'dark-lg');
+
+  if (loading) {
+    return (
+      <PageContainer>
+        <Box textAlign="center" py={10}>
+          <Text>Loading...</Text>
+        </Box>
+      </PageContainer>
+    );
+  }
 
   return (
     <PageContainer>
@@ -158,7 +204,7 @@ function MyTrips() {
               >
                 <Heading size="sm" mb={1}>{trip.title}</Heading>
                 <Text fontSize="xs" color="gray.500">
-                  Depareture: {trip.departureDate || '-'} | Return: {trip.returnDate || '-'}
+                  Depareture: {trip.departure_date || '-'} | Return: {trip.return_date || '-'}
                 </Text>
                 {Array.isArray(trip.destinations) && trip.destinations.length > 0 && (
                   <Text mt={1} fontSize="sm">
@@ -198,16 +244,16 @@ function MyTrips() {
               <Input
                 placeholder="Departure Date"
                 type="date"
-                value={editTrip?.departureDate || ''}
-                onChange={(e) => SetEditTrip({ ...editTrip, departureDate: e.target.value })}
+                value={editTrip?.departure_date || ''}
+                onChange={(e) => SetEditTrip({ ...editTrip, departure_date: e.target.value })}
                 mb={3}
               />
               <Input
                 placeholder="Return Date"
                 type="date"
-                value={editTrip?.returnDate || ''}
-                onChange={(e) => SetEditTrip({ ...editTrip, returnDate: e.target.value })}
-                min={editTrip?.departureDate || ''} // <-- This restricts the selection
+                value={editTrip?.return_date || ''}
+                onChange={(e) => SetEditTrip({ ...editTrip, return_date: e.target.value })}
+                min={editTrip?.departure_date || ''} // <-- This restricts the selection
                 mb={4}
               />
               <Select

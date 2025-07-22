@@ -18,10 +18,11 @@ import {
 } from '@chakra-ui/react';
 import { FaCheckCircle, FaMapMarkerAlt, FaUtensils } from 'react-icons/fa';
 import { useParams, useNavigate } from 'react-router-dom';
-import destinations from '../data/destinations.json';
+
 import AddTripModal from '../components/AddTripModal';
-import React from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import PageContainer from '../components/PageContainer';
+import { destinationsAPI, tripsAPI } from '../services/api'; // <-- Πρόσθεσε αυτό
 
 function DestinationDetails() {
   const { id } = useParams();
@@ -29,12 +30,97 @@ function DestinationDetails() {
   const { isOpen, onOpen, onClose } = useDisclosure();
   const toast = useToast();
 
+  const [destinations, setDestinations] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [destination, setDestination] = useState(null);
+
   const cardBg = useColorModeValue('white', 'gray.800');
   const sidebarBg = useColorModeValue('gray.50', 'gray.700');
 
+  const fetchDestinations = useCallback(async () => {
+    try {
+      const response = await destinationsAPI.getAll();
+      setDestinations(response.data);
+    } catch (error) {
+      console.error('Error fetching destinations:', error);
+      toast({
+        title: 'Error fetching destinations',
+        description: 'Please try again later.',
+        status: 'error',
+        duration: 3000,
+        isClosable: true,
+        position: 'top-center',
+      });
+    } finally {
+      setLoading(false);
+    }
+  }, [toast]);
+  
+  const fetchDestination = useCallback(async (destinationId) => {
+    try {
+      const response = await destinationsAPI.getById(destinationId);
+      setDestination(response.data);
+    } catch (error) {
+      console.error('Error fetching destination:', error);
+      setDestination(null);
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
+  const handleSaveToMyTrips = async () => {
+    try {
+      await tripsAPI.addSaved(destination.id);
+      toast({ title: 'Saved!', status: 'success', duration: 2000, isClosable: true, position: 'top-center' });
+    } catch (error) {
+      if (error.response?.status === 409) {
+        toast({ title: 'Already in My Trips.', status: 'info', duration: 2000, isClosable: true, position: 'top-center' });
+      } else {
+        console.error('Error saving destination:', error);
+        toast({ title: 'Error saving destination', status: 'error', duration: 2000, isClosable: true, position: 'top-center' });
+      }
+    }
+  };
+
+  const handleAddPlannedTrip = async (tripData) => {
+    try {
+      await tripsAPI.addPlanned({
+        ...tripData,
+        destinations: [destination.name],
+      });
+      
+      toast({ title: 'Trip Planned!', status: 'success', duration: 3000, isClosable: true, position: 'top-center' });
+    } catch (error) {
+      console.error('Error adding planned trip:', error);
+      toast({ title: 'Error planning trip', status: 'error', duration: 2000, isClosable: true, position: 'top-center' });
+    }
+  };
+
+  useEffect(() => {
+    if (id) {
+      // If id exists, fetch the specific destination
+      fetchDestination(id);
+    } else {
+      // Otherwise, fetch all destinations
+      fetchDestinations();
+    }
+  }, [fetchDestination, fetchDestinations, id]);
+
+  // 1. ΠΡΩΤΑ το loading
+  if (loading) {
+    return (
+      <PageContainer>
+        <Box textAlign="center" py={10}>
+          <Text>Loading...</Text>
+        </Box>
+      </PageContainer>
+    );
+  }
+
+  // 2. Αν δεν υπάρχει id, δείξε όλα τα destinations
   if (!id) {
     return (
-      <Box px={{ base: 4, md: 10 }} py={8} maxW="1000px" mx="auto">
+      <PageContainer>
         <Box
           mb={8}
           py={6}
@@ -44,7 +130,7 @@ function DestinationDetails() {
           textAlign="center"
         >
           <HStack justify="center" spacing={3}>
-            <Icon as={FaMapMarkerAlt} boxSize={7} color="white" /> places around th
+            <Icon as={FaMapMarkerAlt} boxSize={7} color="white" />
             <Heading size="xl" color="white" letterSpacing="wide">
               All Destinations
             </Heading>
@@ -78,47 +164,26 @@ function DestinationDetails() {
             </Box>
           ))}
         </SimpleGrid>
-      </Box>
-    );
-  }     
-
-  const destination = destinations.find(dest => dest.id === id);
-
-  if (!destination) {
-    return (
-      <Box p={10}>
-        <Heading size="lg">Destination Not Found</Heading>
-        <Text mt={2}>Please check the URL or return to the home page.</Text>
-        <Button mt={4} onClick={() => navigate('/')}>Go Home</Button>
-      </Box>
+      </PageContainer>
     );
   }
 
-  const handleSaveToMyTrips = () => {
-    const trips = JSON.parse(localStorage.getItem('myTrips')) || [];
-    const alreadyExists = trips.find(t => t.id === destination.id);
+  // 3. Αν δεν βρέθηκε destination
+  if (!destination) {
+    return (
+      <PageContainer>
+        <Box textAlign="center" py={10}>
+          <Heading size="lg">Destination Not Found</Heading>
+          <Text mt={2}>Please check the URL or return to the home page.</Text>
+          <Button mt={4} onClick={() => navigate('/')}>Go Home</Button>
+        </Box>
+      </PageContainer>
+    );
+  }
 
-    if (!alreadyExists) {
-      const newTrip = {
-        ...destination,
-        dateAdded: new Date().toLocaleDateString(),
-      };
-      localStorage.setItem('myTrips', JSON.stringify([...trips, newTrip]));
-      toast({ title: 'Saved!', status: 'success', duration: 2000, isClosable: true, position: 'top-center' });
-    } else {
-      toast({ title: 'Already in My Trips.', status: 'info', duration: 2000, isClosable: true, position: 'top-center' });
-    }
-  };
-
-  const handleAddPlannedTrip = (tripData) => {
-    const plannedTrips = JSON.parse(localStorage.getItem('plannedTrips')) || [];
-    localStorage.setItem('plannedTrips', JSON.stringify([...plannedTrips, tripData]));
-    toast({ title: 'Trip Planned!', status: 'success', duration: 3000, isClosable: true, position: 'top-center' });
-  };
-
+  // 4. Εμφάνιση destination details
   return (
     <PageContainer>
-    <Box px={{ base: 4, md: 10 }} py={8} maxW="1000px" mx="auto">
       {/* Header */}
       <VStack spacing={2} textAlign="center" mb={8}>
         <Heading size="xl">{destination.name}</Heading>
@@ -197,7 +262,6 @@ function DestinationDetails() {
           />
         </VStack>
       </SimpleGrid>
-    </Box>
     </PageContainer>
   );
 }

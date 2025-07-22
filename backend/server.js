@@ -36,9 +36,13 @@ app.get('/health', async (req, res) => {
   }
 });
 
-// Destination routes
+// Routes
 const destinationRoutes = require('./routes/destinationRoutes');
+const tripsRoutes = require('./routes/trips'); // Import trips routes
+
+
 app.use('/api/destinations', destinationRoutes);
+app.use('/api/trips', tripsRoutes); // Use trips routes
 
 
 // Error handling middleware

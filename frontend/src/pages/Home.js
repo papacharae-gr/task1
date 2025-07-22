@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import { destinationsAPI, tripsAPI } from '../services/api'; // <-- Πρόσθεσε αυτό
 import {
   Box,
   Grid,
@@ -18,7 +19,6 @@ import {
 } from '@chakra-ui/react';
 import { StarIcon } from '@chakra-ui/icons';
 import { Link } from 'react-router-dom';
-import destinationsData from '../data/destinations.json';
 import PageContainer from '../components/PageContainer';
 
 function Home() {
@@ -27,8 +27,25 @@ function Home() {
   const toast = useToast();
 
   useEffect(() => {
-    setDestinations(destinationsData);
-  }, []);
+    const fetchDestinations = async () => {
+      try {
+        const response = await destinationsAPI.getAll();
+        setDestinations(response.data);
+      } catch (error) {
+        console.error('Error fetching destinations:', error);
+        toast({
+          title: 'Error fetching destinations',
+          description: 'Please try again later.',
+          status: 'error',
+          duration: 3000,
+          isClosable: true,
+          position: 'top-center',
+        });
+      }
+    };
+
+    fetchDestinations();
+  }, [toast]);
 
   const filteredDestinations = destinations
     .filter(dest =>
@@ -46,34 +63,38 @@ function Home() {
       dest.name.toLowerCase().includes(search.toLowerCase())
   );
 
-  const handleSave = (destination) => {
-    const trips = JSON.parse(localStorage.getItem('myTrips')) || [];
-    const exists = trips.find(t => t.id === destination.id);
-
-    if (exists) {
+  const handleSave = async (destination) => {
+    try {
+      await tripsAPI.addSaved(destination.id);
+      
       toast({
-        title: 'Already saved',
-        status: 'info',
+        title: 'Saved to My Trips',
+        status: 'success',
         duration: 2000,
         isClosable: true,
-        position: 'top-center',
-        
+        position: 'top-center'
       });
-      return;
+    } catch (error) {
+      if (error.response?.status === 409) {
+        toast({
+          title: 'Already saved',
+          status: 'info',
+          duration: 2000,
+          isClosable: true,
+          position: 'top-center',
+        });
+      } else {
+        console.error('Error saving destination:', error);
+        toast({
+          title: 'Error saving destination',
+          description: 'Please try again later.',
+          status: 'error',
+          duration: 3000,
+          isClosable: true,
+          position: 'top-center'
+        });
+      }
     }
-
-    const newTrip = {
-      ...destination,
-      dateAdded: new Date().toLocaleDateString(),
-    };
-    localStorage.setItem('myTrips', JSON.stringify([...trips, newTrip]));
-    toast({
-      title: 'Saved to My Trips',
-      status: 'success',
-      duration: 2000,
-      isClosable: true,
-      position: 'top-center'
-    });
   };
 
   const cardBg = useColorModeValue('white', 'gray.800');

@@ -5,7 +5,7 @@ const {
   getDestinationById
 } = require('../controllers/destinationController');
 
-router.get('/', getAllDestinations);
-router.get('/:id', getDestinationById);
+router.get('/', getAllDestinations);        // GET /api/destinations
+router.get('/:id', getDestinationById);     // GET /api/destinations/:id
 
 module.exports = router;
