@@ -1,7 +1,10 @@
 const express = require('express');
 const cors = require('cors');
-const pool = require('./db');
+const pool = require('./config/db'); 
 require('dotenv').config();
+
+
+
 
 const app = express();
 const PORT = process.env.PORT || 4000;
@@ -10,12 +13,12 @@ const PORT = process.env.PORT || 4000;
 app.use(cors());
 app.use(express.json());
 
-// Basic route
+// Base route
 app.get('/', (req, res) => {
   res.json({ message: 'Tourism API Server is running!' });
 });
 
-// Health check route
+// Health check
 app.get('/health', async (req, res) => {
   try {
     await pool.query('SELECT NOW()');
@@ -33,30 +36,10 @@ app.get('/health', async (req, res) => {
   }
 });
 
-// Destinations routes (example)
-app.get('/api/destinations', async (req, res) => {
-  try {
-    // For now, return mock data since we don't have database tables set up
-    const mockDestinations = [
-      {
-        id: "paris",
-        name: "Paris, France",
-        rating: 4.8,
-        description: "The City of Light offers romance, culture, and incredible cuisine."
-      },
-      {
-        id: "tokyo", 
-        name: "Tokyo, Japan",
-        rating: 4.7,
-        description: "Modern metropolis blending tradition with cutting-edge technology."
-      }
-    ];
-    res.json(mockDestinations);
-  } catch (error) {
-    console.error('Error fetching destinations:', error);
-    res.status(500).json({ error: 'Internal server error' });
-  }
-});
+// Destination routes
+const destinationRoutes = require('./routes/destinationRoutes');
+app.use('/api/destinations', destinationRoutes);
+
 
 // Error handling middleware
 app.use((err, req, res, next) => {
@@ -70,8 +53,8 @@ app.use((req, res) => {
 });
 
 app.listen(PORT, () => {
-  console.log(`Tourism API server is running on port ${PORT}`);
-  console.log(`Health check: http://localhost:${PORT}/health`);
+  console.log(`✅ Tourism API server is running on port ${PORT}`);
+  console.log(`🔍 Health check: http://localhost:${PORT}/health`);
 });
 
 module.exports = app;
