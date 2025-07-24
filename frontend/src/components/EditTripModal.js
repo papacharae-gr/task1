@@ -13,12 +13,12 @@ import {
   FormControl,
   FormLabel,
   useToast,
+  Box,
 } from '@chakra-ui/react';
 
 import DatePicker from 'react-datepicker';
 import 'react-datepicker/dist/react-datepicker.css';
 import { parseISO, format } from 'date-fns';
-import { InputGroup, InputRightElement } from '@chakra-ui/react';
 import { FiCalendar } from 'react-icons/fi';
 
 function EditTripModal({ isOpen, onClose, trip, onSave }) {
@@ -138,37 +138,35 @@ function EditTripModal({ isOpen, onClose, trip, onSave }) {
 
           <FormControl isRequired mb={4}>
             <FormLabel>Departure Date</FormLabel>
-            <InputGroup>
+            <Box className="datepicker-container">
               <DatePicker
                 selected={formData.departureDate}
                 onChange={(date) => setFormData({ ...formData, departureDate: date })}
                 dateFormat="dd/MM/yyyy"
                 placeholderText="Select date"
-                className="chakra-input"
-                wrapperClassName="chakra-input"
+                className="chakra-datepicker"
               />
-              <InputRightElement pointerEvents="none">
+              <Box className="datepicker-icon">
                 <FiCalendar />
-              </InputRightElement>
-            </InputGroup>
+              </Box>
+            </Box>
           </FormControl>
 
           <FormControl isRequired mb={4}>
             <FormLabel>Return Date</FormLabel>
-            <InputGroup>
+            <Box className="datepicker-container">
               <DatePicker
                 selected={formData.returnDate}
                 onChange={(date) => setFormData({ ...formData, returnDate: date })}
                 dateFormat="dd/MM/yyyy"
                 placeholderText="Select date"
                 minDate={formData.departureDate}
-                className="chakra-input"
-                wrapperClassName="chakra-input"
+                className="chakra-datepicker"
               />
-              <InputRightElement pointerEvents="none">
+              <Box className="datepicker-icon">
                 <FiCalendar />
-              </InputRightElement>
-            </InputGroup>
+              </Box>
+            </Box>
           </FormControl>
 
           <FormControl mb={4}>

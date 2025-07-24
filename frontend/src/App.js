@@ -5,6 +5,7 @@ import Home from './pages/Home';
 import DestinationDetails from './pages/DestinationDetails';
 import MyTrips from './pages/MyTrips';
 import Navbar from './components/Navbar';
+import './App.css';
 
 function App() {
   return (
