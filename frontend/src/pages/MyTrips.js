@@ -17,7 +17,7 @@ import {
 } from '@chakra-ui/react';
 import { Link } from 'react-router-dom';
 import PageContainer from '../components/PageContainer';
-import EditTripModal from '../components/EditTripModal'; // <-- Import το νέο modal
+import EditTripModal from '../components/EditTripModal'; 
 
 function MyTrips() {
   const [savedDestinations, setSavedDestinations] = useState([]);
@@ -85,16 +85,16 @@ function MyTrips() {
     try {
       await tripsAPI.updatePlanned(tripData.id, {
         title: tripData.title,
-        departureDate: tripData.departureDate, // <-- Frontend uses camelCase
-        returnDate: tripData.returnDate,       // <-- Frontend uses camelCase
+        departureDate: tripData.departureDate,
+        returnDate: tripData.returnDate,      
         status: tripData.status,
         destinations: tripData.destinations,
       });
 
-      await fetchPlannedTrips(); // <-- Ανανέωση λίστας
+      await fetchPlannedTrips(); // Refresh the planned trips after saving
     } catch (error) {
       console.error('Error updating planned trip:', error);
-      throw error; // <-- Throw για το EditTripModal
+      throw error; // Throw for the EditTripModal
     }
   };
 
@@ -240,7 +240,7 @@ function MyTrips() {
           isOpen={isOpen}
           onClose={() => {
             setEditTrip(null);
-            onClose(); // Αυτό καλεί το onClose από useDisclosure
+            onClose(); // Close the modal
           }}
           trip={editTrip}
           onSave={handleEditSave}

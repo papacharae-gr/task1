@@ -28,7 +28,7 @@ router.post('/saved', async (req, res) => {
   try {
     const { destinationId, userId = 'default_user' } = req.body;
     
-    // Έλεγχος αν υπάρχει ήδη
+    
     const existing = await pool.query(
       'SELECT id FROM user_trips WHERE destination_id = $1 AND user_id = $2',
       [destinationId, userId]

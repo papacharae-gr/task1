@@ -32,7 +32,7 @@ function EditTripModal({ isOpen, onClose, trip, onSave }) {
 
   const toast = useToast();
 
-  // ✅ Correctly parse ISO date strings into Date objects
+  // Correctly parse ISO date strings into Date objects
   useEffect(() => {
     if (trip) {
     setFormData({
@@ -53,7 +53,7 @@ function EditTripModal({ isOpen, onClose, trip, onSave }) {
   }
 }, [trip]);
 
-  // ✅ Format date as dd/MM/yyyy (for save)
+  //Format date as dd/MM/yyyy (for save)
   const formatDateForSave = (date) => {
   return date ? format(date, 'yyyy-MM-dd') : '';
   };
