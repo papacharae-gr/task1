@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import {
   Modal,
   ModalOverlay,
@@ -15,73 +15,70 @@ import {
   useToast,
 } from '@chakra-ui/react';
 
+import DatePicker from 'react-datepicker';
+import 'react-datepicker/dist/react-datepicker.css';
+import { parseISO, format } from 'date-fns';
+import { InputGroup, InputRightElement } from '@chakra-ui/react';
+import { FiCalendar } from 'react-icons/fi';
+
 function EditTripModal({ isOpen, onClose, trip, onSave }) {
   const [formData, setFormData] = useState({
     title: '',
-    departureDate: '',
-    returnDate: '',
+    departureDate: null,
+    returnDate: null,
     status: 'Planning',
     destinations: [],
   });
 
   const toast = useToast();
 
-  // ✅ Χωρίς timezone bug
-  const formatDateForInput = (dateValue) => {
-    if (!dateValue) return '';
-
-    try {
-      const date = new Date(dateValue);
-      if (isNaN(date.getTime())) {
-        console.warn('Invalid date:', dateValue);
-        return '';
-      }
-
-      // Επιστρέφει YYYY-MM-DD σε local time, χωρίς μετατόπιση ώρας
-      return date.toLocaleDateString('en-CA');
-    } catch (error) {
-      console.error('Error formatting date:', error);
-      return '';
-    }
-  };
-
+  // ✅ Correctly parse ISO date strings into Date objects
   useEffect(() => {
     if (trip) {
-      const formattedDepartureDate = formatDateForInput(trip.departure_date);
-      const formattedReturnDate = formatDateForInput(trip.return_date);
+    setFormData({
+      title: trip.title || '',
+      departureDate: trip.departureDate
+        ? parseISO(trip.departureDate)
+        : trip.departure_date
+        ? parseISO(trip.departure_date)
+        : null,
+      returnDate: trip.returnDate
+        ? parseISO(trip.returnDate)
+        : trip.return_date
+        ? parseISO(trip.return_date)
+        : null,
+      status: trip.status || 'Planning',
+      destinations: trip.destinations || [],
+    });
+  }
+}, [trip]);
 
-      setFormData({
-        title: trip.title || '',
-        departureDate: formattedDepartureDate,
-        returnDate: formattedReturnDate,
-        status: trip.status || 'Planning',
-        destinations: trip.destinations || [],
-      });
-    }
-  }, [trip]);
+  // ✅ Format date as dd/MM/yyyy (for save)
+  const formatDateForSave = (date) => {
+  return date ? format(date, 'yyyy-MM-dd') : '';
+  };
 
   const handleSave = async () => {
-    if (!formData.title || !formData.departureDate) {
+    if (!formData.title || !formData.departureDate || !formData.returnDate) {
       toast({
-        title: 'Missing fields',
+        title: 'Missing Fields',
         description: 'Please fill in all required fields.',
         status: 'warning',
         duration: 3000,
         isClosable: true,
-        position: 'top-center',
+        position: 'top',
       });
       return;
     }
 
-    if (formData.returnDate && formData.departureDate &&
-      new Date(formData.returnDate) < new Date(formData.departureDate)) {
+    if (formData.returnDate < formData.departureDate) {
       toast({
-        title: 'Invalid date range',
+        title: 'Invalid Dates',
         description: 'Return date cannot be earlier than departure date.',
         status: 'warning',
         duration: 3000,
         isClosable: true,
-        position: 'top-center',
+        position: 'top',
       });
       return;
     }
@@ -90,29 +87,31 @@ function EditTripModal({ isOpen, onClose, trip, onSave }) {
       await onSave({
         id: trip.id,
         title: formData.title,
-        departureDate: formData.departureDate,
-        returnDate: formData.returnDate,
+        departureDate: formatDateForSave(formData.departureDate),
+        returnDate: formatDateForSave(formData.returnDate),
         status: formData.status,
         destinations: formData.destinations,
       });
 
       toast({
-        title: 'Trip updated successfully!',
+        title: 'Trip Updated',
+        description: 'Your trip has been updated successfully.',
         status: 'success',
-        duration: 2000,
+        duration: 3000,
         isClosable: true,
-        position: 'top-center',
+        position: 'top',
       });
 
       handleClose();
     } catch (error) {
       console.error('Error saving trip:', error);
       toast({
-        title: 'Error updating trip',
+        title: 'Error Saving Trip',
+        description: 'There was an error saving your trip. Please try again later.',
         status: 'error',
         duration: 3000,
         isClosable: true,
-        position: 'top-center',
+        position: 'top',
       });
     }
   };
@@ -124,39 +123,55 @@ function EditTripModal({ isOpen, onClose, trip, onSave }) {
   return (
     <Modal isOpen={isOpen} onClose={handleClose}>
       <ModalOverlay />
-      <ModalContent maxW={{ base: '90%', sm: '500px', md: '600px' }} mx="auto" borderRadius="lg">
+      <ModalContent maxW={{ base: '90%', md: '600px' }} mx="auto" borderRadius="lg">
         <ModalHeader>Edit Trip</ModalHeader>
         <ModalCloseButton />
         <ModalBody>
           <FormControl isRequired mb={4}>
-            <FormLabel>Trip Title</FormLabel>
+            <FormLabel>Title</FormLabel>
             <Input
-              placeholder="Trip Title"
               value={formData.title}
               onChange={(e) => setFormData({ ...formData, title: e.target.value })}
+              placeholder="Trip Title"
             />
           </FormControl>
 
           <FormControl isRequired mb={4}>
             <FormLabel>Departure Date</FormLabel>
-            <Input
-              type="date"
-              value={formData.departureDate}
-              onChange={(e) => setFormData({ ...formData, departureDate: e.target.value })}
-            />
+            <InputGroup>
+              <DatePicker
+                selected={formData.departureDate}
+                onChange={(date) => setFormData({ ...formData, departureDate: date })}
+                dateFormat="dd/MM/yyyy"
+                placeholderText="Select date"
+                className="chakra-input"
+                wrapperClassName="chakra-input"
+              />
+              <InputRightElement pointerEvents="none">
+                <FiCalendar />
+              </InputRightElement>
+            </InputGroup>
+          </FormControl>
+
+          <FormControl isRequired mb={4}>
+            <FormLabel>Return Date</FormLabel>
+            <InputGroup>
+              <DatePicker
+                selected={formData.returnDate}
+                onChange={(date) => setFormData({ ...formData, returnDate: date })}
+                dateFormat="dd/MM/yyyy"
+                placeholderText="Select date"
+                minDate={formData.departureDate}
+                className="chakra-input"
+                wrapperClassName="chakra-input"
+              />
+              <InputRightElement pointerEvents="none">
+                <FiCalendar />
+              </InputRightElement>
+            </InputGroup>
           </FormControl>
 
           <FormControl mb={4}>
-            <FormLabel>Return Date</FormLabel>
-            <Input
-              type="date"
-              value={formData.returnDate}
-              onChange={(e) => setFormData({ ...formData, returnDate: e.target.value })}
-              min={formData.departureDate || ''}
-            />
-          </FormControl>
-
-          <FormControl>
             <FormLabel>Status</FormLabel>
             <Select
               value={formData.status}
@@ -170,10 +185,12 @@ function EditTripModal({ isOpen, onClose, trip, onSave }) {
         </ModalBody>
 
         <ModalFooter>
-          <Button colorScheme="blue" onClick={handleSave} mr={3}>
-            Save Changes
+          <Button colorScheme="blue" mr={3} onClick={handleSave}>
+            Save
           </Button>
-          <Button onClick={handleClose}>Cancel</Button>
+          <Button variant="ghost" onClick={handleClose}>
+            Cancel
+          </Button>
         </ModalFooter>
       </ModalContent>
     </Modal>
