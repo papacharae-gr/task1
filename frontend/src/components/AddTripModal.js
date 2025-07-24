@@ -13,23 +13,32 @@ import {
   FormLabel,
   Select,
   VStack,
-  useToast
+  useToast,
+  Box
 } from '@chakra-ui/react';
+
+import DatePicker from 'react-datepicker';
+import 'react-datepicker/dist/react-datepicker.css';
+import { format } from 'date-fns';
+import { FiCalendar } from 'react-icons/fi';
 
 function AddTripModal({ isOpen, onClose, onAddTrip, defaultDestination = '' }) {
   const [title, setTitle] = useState('');
-  const [startDate, setStartDate] = useState('');
-  const [endDate, setEndDate] = useState('');
+  const [startDate, setStartDate] = useState(null);
+  const [endDate, setEndDate] = useState(null);
   const [status, setStatus] = useState('Planning');
   const [destinations, setDestinations] = useState(defaultDestination ? [defaultDestination] : []);
 
   const toast = useToast();
 
+  // Format date for backend (YYYY-MM-DD)
+  const formatDateForSave = (date) => {
+    return date ? format(date, 'yyyy-MM-dd') : '';
+  };
+
   const handleSubmit = () => {
     const today = new Date();
     today.setHours(0, 0, 0, 0);
-    const start = new Date(startDate);
-    const end = new Date(endDate);
     
     if (!title || !startDate || !endDate) {
       toast({
@@ -43,7 +52,7 @@ function AddTripModal({ isOpen, onClose, onAddTrip, defaultDestination = '' }) {
       return;
     }
 
-    if (start < today) {
+    if (startDate < today) {
       toast({
         title: 'Invalid start date',
         description: 'Start date cannot be in the past.',
@@ -55,7 +64,7 @@ function AddTripModal({ isOpen, onClose, onAddTrip, defaultDestination = '' }) {
       return;
     }
 
-    if (end < start) {
+    if (endDate < startDate) {
       toast({
         title: 'Invalid date range',
         description: 'End date must be after start date.',
@@ -69,8 +78,8 @@ function AddTripModal({ isOpen, onClose, onAddTrip, defaultDestination = '' }) {
 
     const newTrip = {
       title,
-      departureDate: startDate,
-      returnDate: endDate,
+      departureDate: formatDateForSave(startDate),
+      returnDate: formatDateForSave(endDate),
       status,
       destinations: Array.isArray(destinations) ? destinations : [destinations].filter(Boolean),
     };
@@ -80,8 +89,8 @@ function AddTripModal({ isOpen, onClose, onAddTrip, defaultDestination = '' }) {
     
     // Reset fields
     setTitle('');
-    setStartDate('');
-    setEndDate('');
+    setStartDate(null);
+    setEndDate(null);
     setStatus('Planning');
     setDestinations(defaultDestination ? [defaultDestination] : []);
   };
@@ -105,22 +114,36 @@ function AddTripModal({ isOpen, onClose, onAddTrip, defaultDestination = '' }) {
 
             <FormControl isRequired>
               <FormLabel>Start Date</FormLabel>
-              <Input 
-                type="date" 
-                value={startDate} 
-                onChange={(e) => setStartDate(e.target.value)}
-                min={new Date().toISOString().split('T')[0]} // Δεν επιτρέπει παλιές ημερομηνίες
-              />
+              <Box className="datepicker-container">
+                <DatePicker
+                  selected={startDate}
+                  onChange={(date) => setStartDate(date)}
+                  dateFormat="dd/MM/yyyy"
+                  placeholderText="Select start date"
+                  minDate={new Date()}
+                  className="chakra-datepicker"
+                />
+                <Box className="datepicker-icon">
+                  <FiCalendar />
+                </Box>
+              </Box>
             </FormControl>
 
             <FormControl isRequired>
               <FormLabel>End Date</FormLabel>
-              <Input 
-                type="date" 
-                value={endDate} 
-                onChange={(e) => setEndDate(e.target.value)}
-                min={startDate || new Date().toISOString().split('T')[0]} // End date >= start date
-              />
+              <Box className="datepicker-container">
+                <DatePicker
+                  selected={endDate}
+                  onChange={(date) => setEndDate(date)}
+                  dateFormat="dd/MM/yyyy"
+                  placeholderText="Select end date"
+                  minDate={startDate || new Date()}
+                  className="chakra-datepicker"
+                />
+                <Box className="datepicker-icon">
+                  <FiCalendar />
+                </Box>
+              </Box>
             </FormControl>
 
             <FormControl isRequired>
