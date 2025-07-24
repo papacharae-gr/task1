@@ -259,7 +259,7 @@ function DestinationDetails() {
           </Box>
 
           <Button colorScheme="blue" onClick={handleSaveToMyTrips}>
-            Add to My Trip
+            Save Destination
           </Button>
 
           <Button colorScheme="green" variant="outline" onClick={onOpen}>
