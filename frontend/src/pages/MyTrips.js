@@ -220,7 +220,7 @@ function MyTrips() {
                     <Text fontSize="sm" mr={2}>Status:</Text>
                     <Badge colorScheme={statusColor[trip.status] || 'gray'}>{trip.status}</Badge>
                     <Spacer />
-                    {trip.status === 'Planning' && (
+                    {(trip.status === 'Planning' || trip.status === 'Confirmed' || trip.status === 'Cancelled') && (
                       <Button size="xs" colorScheme="yellow" mr={1} onClick={() => handleEditClick(trip)}>
                         Edit
                       </Button>
