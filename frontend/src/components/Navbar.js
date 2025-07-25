@@ -57,15 +57,23 @@ function Navbar() {
                   as={Link}
                   to={path}
                   _selected={{
-                    bg: 'blue.600',
-                    color: 'white',
+                    bg: 'white',
+                    color: 'blue.600',
                     fontWeight: 'bold',
                     rounded: 'md',
+                    transform: 'translateY(-1px)',
+                    boxShadow: '0 2px 2px rgba(0,0,0,0.1)',
                   }}
-                  _hover={{ bg: 'whiteAlpha.200' }}
+                  _hover={{ 
+                    bg: 'blue.50',
+                    color: 'blue.700',
+                    transform: 'translateY(-1px)',
+                    rounded: 'md',
+                  }}
                   color="white"
                   px={4}
                   py={2}
+                  transition="all 0.2s"
                 >
                   {label}
                 </Tab>
@@ -100,20 +108,37 @@ function Navbar() {
                 />
               </Flex>
               <VStack spacing={6} mt={8}>
-                {navTabs.map(({ label, path }) => (
-                  <Box
-                    as={Link}
-                    to={path}
-                    key={path}
-                    fontWeight={location.pathname.startsWith(path) ? 'bold' : 'normal'}
-                    color="white"
-                    fontSize="lg"
-                    onClick={onClose}
-                    _hover={{ color: 'teal.200' }}
-                  >
-                    {label}
-                  </Box>
-                ))}
+                {navTabs.map(({ label, path }) => {
+                  const isActive = path === '/' 
+                    ? location.pathname === '/' 
+                    : location.pathname.startsWith(path);
+                  
+                  return (
+                    <Box
+                      as={Link}
+                      to={path}
+                      key={path}
+                      fontWeight={isActive ? 'bold' : 'normal'}
+                      color={isActive ? 'yellow.300' : 'white'}
+                      fontSize="lg"
+                      onClick={onClose}
+                      _hover={{ 
+                        color: 'teal.200',
+                        rounded: 'full',
+                        bg: 'whiteAlpha.100',
+                      }}
+                      px={4}
+                      py={2}
+                      rounded="md"
+                      bg={isActive ? 'whiteAlpha.200' : 'transparent'}
+                      border={isActive ? '2px solid' : 'none'}
+                      borderColor={isActive ? 'yellow.300' : 'transparent'}
+                      transition="all 0.2s"
+                    >
+                      {label}
+                    </Box>
+                  );
+                })}
               </VStack>
             </DrawerBody>
           </DrawerContent>
