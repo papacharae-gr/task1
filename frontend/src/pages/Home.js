@@ -287,11 +287,13 @@ function Home() {
             </Text>
           ) : (
             <Grid
+              
               templateColumns={{ base: '1fr', md: 'repeat(2, 1fr)', lg: 'repeat(3, 1fr)' }}
               gap={{ base: 4, md: 6, lg: 8 }}
             >
               {displayedDestinations.map(dest => (
                 <Card
+                  onClick={() => navigate(`/DestinationDetails/${dest.id}`)}
                   key={dest.id}
                   bg={cardBg}
                   shadow={cardShadow}
