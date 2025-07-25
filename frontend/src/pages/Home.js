@@ -210,6 +210,25 @@ function Home() {
               ))}
             </Grid>
           )}
+          <Box textAlign="center" mt={8}>
+            <Button
+              as={Link}
+              to={'/DestinationDetails'}
+              colorScheme="teal"
+              size="lg"
+              borderRadius="full"
+              fontSize="md"
+              px={8}
+              py={6}
+              _hover={{
+                transform: 'translateY(-2px)',
+                boxShadow: 'lg'
+              }}
+              transition="all 0.2s"
+            >
+              View More Destinations
+            </Button>
+          </Box>
         </Box>
       </Box>
     </PageContainer>
