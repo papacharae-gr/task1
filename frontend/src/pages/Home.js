@@ -140,9 +140,7 @@ function Home() {
         {/* Hero Section */}
         <Box bg="blue.500" color="white" py={{ base: 8, md: 12 }} px={4} textAlign="center" margin={{ base: 4, md: 12 }} borderRadius="xl">
           <VStack spacing={{ base: 4, md: 6 }}>
-            <Heading size={{ base: "xl", md: "2xl" }} fontWeight="bold">
-              Discover Amazing Places
-            </Heading>
+            
             <Text fontSize={{ base: "md", md: "lg" }}>
               Find your next adventure with our curated travel destinations
             </Text>
@@ -162,8 +160,7 @@ function Home() {
                     placeholder="Search destinations..."
                     value={search}
                     onChange={(e) => handleSearchChange(e.target.value)}
-                    onKeyDown={(e) => {
-                      if (e.key === 'Enter') {
+                    onKeyDown={(e) => {                      if (e.key === 'Enter') {
                         handleSearchSubmit();
                       } else if (e.key === 'Escape') {
                         setShowSuggestions(false);

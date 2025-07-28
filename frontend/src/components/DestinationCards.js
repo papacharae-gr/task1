@@ -154,21 +154,7 @@ function DestinationCards({
               View Details
             </Button>
             
-            {/* Views Badge */}
-            <Badge 
-              colorScheme="gray" 
-              size="lg"
-              borderRadius="full"
-              px={3}
-              py={1}
-              display="flex"
-              alignItems="center"
-              gap={1}
-              fontSize="sm"
-            >
-              <Icon as={FaEye} boxSize={3} />
-              {dest.views || 0}
-            </Badge>
+            
             
             {showSaveButton && (
               <Button
@@ -181,7 +167,32 @@ function DestinationCards({
               >
                 Save
               </Button>
+
+              
             )}
+
+            {/* Views Badge */}
+            <Badge 
+              colorScheme="gray" 
+              size="lg"
+              borderRadius="full"
+              px={3}
+              py={1}
+              display="flex"
+              alignItems="center"
+              justifyContent={"center"}
+              gap={1}
+              fontSize="sm"
+              alignContent={"center"}
+                fontWeight="bold"
+                color="gray.600"
+                bg="gray.100"
+
+            >
+              <Icon as={FaEye} boxSize={3} />
+              {dest.views || 0}
+            </Badge>
+
           </CardFooter>
         </Card>
       ))}
