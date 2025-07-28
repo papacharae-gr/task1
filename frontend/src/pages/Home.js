@@ -36,7 +36,8 @@ function Home() {
     const fetchDestinations = async () => {
       try {
         const response = await destinationsAPI.getAll();
-        setDestinations(response.data);
+        // Axios επιστρέφει response.data
+        setDestinations(response.data || []);
       } catch (error) {
         console.error('Error fetching destinations:', error);
         toast({
@@ -131,7 +132,10 @@ function Home() {
     })
     .slice(0, 3); // Δείχνουμε πάντα τους top 6 προορισμούς
 
-  const handleSave = async (destination) => {
+  const handleSave = async (destination, event) => {
+    // Stop event bubbling to prevent navigation when clicking save
+    event.stopPropagation();
+    
     try {
       await tripsAPI.addSaved(destination.id);
       
@@ -301,9 +305,11 @@ function Home() {
                   overflow="hidden"
                   transition="all 0.3s"
                   _hover={{ transform: 'translateY(-4px)', shadow: 'xl' }}
+                  cursor={'pointer'}
                 >
                   <Image src={dest.image} alt={dest.name} objectFit="cover" height="200px" width="100%" />
                   <CardBody>
+                    
                     <Heading size="md" mb={2}>{dest.name}</Heading>
                     <Text noOfLines={3} fontSize="sm" color="gray.600">
                       {dest.description}
@@ -327,11 +333,12 @@ function Home() {
                       size={{ base: "md", sm: "sm" }}
                       borderRadius="full"
                       w={{ base: "100%", sm: "auto" }}
+                      onClick={(e) => e.stopPropagation()}
                     >
                       View Details
                     </Button>
                     <Button
-                      onClick={() => handleSave(dest)}
+                      onClick={(e) => handleSave(dest, e)}
                       colorScheme="green"
                       size={{ base: "md", sm: "sm" }}
                       borderRadius="full"
