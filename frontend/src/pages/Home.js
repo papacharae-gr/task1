@@ -10,9 +10,15 @@ import {
   HStack,
   Divider,
   useToast,
-  List,
-  ListItem,
+  Image,
+  Badge,
+  Icon,
+  InputGroup,
+  InputLeftElement,
+  InputRightElement,
+  IconButton,
 } from '@chakra-ui/react';
+import { FaSearch, FaTimes, FaEye } from 'react-icons/fa';
 import { Link, useNavigate } from 'react-router-dom';
 import PageContainer from '../components/PageContainer';
 import DestinationCards from '../components/DestinationCards';
@@ -147,90 +153,131 @@ function Home() {
             <Box
               bg="white"
               borderRadius="2xl"
-              px={{ base: 3, md: 4 }}
-              py={3}
-              boxShadow="lg"
-              maxW={{ base: "90%", md: "md" }}
+              px={{ base: 2, md: 4 }}
+              py={{ base: 2, md: 3 }}
+              boxShadow="xl"
+              maxW={{ base: "100%", sm: "95%", md: "lg" }}
               w="100%"
               position="relative"
+              mx="auto" // Κεντράρισμα
             >
-              <HStack spacing={2}>
+              <HStack spacing={{ base: 2, md: 3 }} align="center">
                 <Box flex="1" position="relative">
-                  <Input
-                    placeholder="Search destinations..."
-                    value={search}
-                    onChange={(e) => handleSearchChange(e.target.value)}
-                    onKeyDown={(e) => {                      if (e.key === 'Enter') {
-                        handleSearchSubmit();
-                      } else if (e.key === 'Escape') {
-                        setShowSuggestions(false);
-                      }
-                    }}
-                    color="gray.800"
-                    variant="unstyled"
-                    size="md"
-                    px={2}
-                    onFocus={() => {
-                      if (suggestions.length > 0) setShowSuggestions(true);
-                    }}
-                  />
-                  
-                  {/* Autocomplete suggestions - τώρα κάτω από το input */}
+                  <InputGroup size={{ base: "sm", md: "md" }}>
+                    <InputLeftElement pointerEvents="none">
+                      <Icon as={FaSearch} color="gray.400" />
+                    </InputLeftElement>
+                    <Input
+                      placeholder="Search destinations..."
+                      value={search}
+                      onChange={(e) => handleSearchChange(e.target.value)}
+                      onKeyDown={(e) => {
+                        if (e.key === 'Enter') {
+                          handleSearchSubmit();
+                        } else if (e.key === 'Escape') {
+                          setShowSuggestions(false);
+                        }
+                      }}
+                      color="gray.800"
+                      variant="outline"
+                      borderRadius="full"
+                      borderColor="gray.300"
+                      focusBorderColor="blue.400"
+                      bg="gray.50"
+                      _hover={{ bg: "gray.100" }}
+                      pl={{ base: 8, md: 10 }}
+                      pr={search ? { base: 8, md: 10 } : { base: 4, md: 6 }}
+                      onFocus={() => {
+                        if (suggestions.length > 0) setShowSuggestions(true);
+                      }}
+                    />
+                    {search && (
+                      <InputRightElement>
+                        <IconButton
+                          icon={<FaTimes />}
+                          size="xs"
+                          variant="ghost"
+                          colorScheme="gray"
+                          aria-label="Clear search"
+                          onClick={() => {
+                            setSearch('');
+                            setSelectedDestination(null);
+                            setSuggestions([]);
+                            setShowSuggestions(false);
+                          }}
+                          _hover={{ bg: "gray.200" }}
+                          borderRadius="full"
+                        />
+                      </InputRightElement>
+                    )}
+                  </InputGroup>
+
+                  {/* Enhanced Typeahead Suggestions */}
                   {showSuggestions && suggestions.length > 0 && (
                     <Box
-                      position="absolute"
+                      position="relative"
                       top="100%"
                       left="0"
                       right="0"
                       bg="white"
-                      borderRadius="md"
-                      boxShadow="lg"
+                      borderRadius="lg"
+                      boxShadow="xl"
                       border="1px solid"
                       borderColor="gray.200"
                       zIndex="1000"
-                      maxH={{ base: "150px", md: "200px" }}
+                      maxH={{ base: "200px", md: "250px" }}
                       overflowY="auto"
-                      mt={1}
-                      mx={{ base: -2, md: 0 }} // Για καλύτερη εμφάνιση σε κινητά
+                      mt={2}
                     >
-                      <List spacing={0}>
-                        {suggestions.map((dest) => (
-                          <ListItem
-                            key={dest.id}
-                            px={{ base: 3, md: 4 }}
-                            py={{ base: 3, md: 2 }}
-                            cursor="pointer"
-                            _hover={{ bg: "blue.50" }}
-                            _active={{ bg: "blue.100" }} // Για touch feedback σε κινητά
-                            borderBottom="1px solid"
-                            borderColor="gray.100"
-                            onClick={() => handleSuggestionClick(dest)}
-                            minH={{ base: "50px", md: "auto" }} // Μεγαλύτερα touch targets για κινητά
-                          >
-                            <Text fontSize={{ base: "md", md: "sm" }} fontWeight="medium" color="gray.800">
-                              {dest.name}
-                            </Text>
-                            <Text fontSize={{ base: "sm", md: "xs" }} color="gray.500" noOfLines={1}>
-                              {dest.description}
-                            </Text>
-                          </ListItem>
-                        ))}
-                      </List>
+                      {suggestions.map((dest) => (
+                        <Box
+                          key={dest.id}
+                          p={3}
+                          cursor="pointer"
+                          _hover={{ bg: "blue.50" }}
+                          _active={{ bg: "blue.100" }}
+                          onClick={() => handleSuggestionClick(dest)}
+                          borderBottom="1px solid"
+                          borderColor="gray.100"
+                          _last={{ borderBottom: "none" }}
+                        >
+                          <HStack spacing={3}>
+                            <Image
+                              src={dest.image}
+                              alt={dest.name}
+                              boxSize="40px"
+                              borderRadius="md"
+                              objectFit="cover"
+                              fallback={<Box bg="gray.200" boxSize="40px" borderRadius="md" />}
+                            />
+                            <VStack align="start" spacing={1} flex={1}>
+                              <Text fontWeight="semibold" fontSize="sm" color="gray.800">
+                                {dest.name}
+                              </Text>
+                              <Text fontSize="xs" color="gray.500" noOfLines={1}>
+                                {dest.description}
+                              </Text>
+                              <HStack spacing={2}>
+                                <Badge colorScheme="blue" size="sm">
+                                  ⭐ {dest.rating}
+                                </Badge>
+                                <Badge colorScheme="green" size="sm">
+                                  <Icon as={FaEye} boxSize={2} mr={1} />
+                                  {dest.views || 0}
+                                </Badge>
+                              </HStack>
+                            </VStack>
+                          </HStack>
+                        </Box>
+                      ))}
                     </Box>
                   )}
                 </Box>
+
                 
-                <Button 
-                  colorScheme="blue" 
-                  size={{ base: "md", md: "sm" }}
-                  onClick={handleSearchSubmit}
-                  disabled={!search.trim()}
-                  minW={{ base: "80px", md: "auto" }}
-                >
-                  Search
-                </Button>
               </HStack>
             </Box>
+
           </VStack>
         </Box>
 

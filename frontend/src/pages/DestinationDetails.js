@@ -399,31 +399,41 @@ function DestinationDetails() {
 
         {/* Pagination with Arrow Navigation - Always Visible */}
         <Box mt={12}>
-          <Flex justify="center" align="center" gap={3}>
+          <Flex justify="center" align="center" gap={{ base: 2, md: 3 }} wrap="wrap">
             {/* Previous Button with Arrow */}
             <Button
               onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
               disabled={currentPage === 1 || totalPages === 0}
               colorScheme="blue"
               variant="outline"
-              size="md"
+              size={{ base: "sm", md: "md" }}
               leftIcon={<FaChevronLeft />}
               borderRadius="full"
+              minW={{ base: "auto", sm: "100px" }}
+              px={{ base: 3, sm: 6 }}
+              fontSize={{ base: "sm", md: "md" }}
               _disabled={{ opacity: 0.4, cursor: "not-allowed" }}
+              _hover={{
+                transform: "translateY(-1px)",
+                shadow: "md"
+              }}
+              transition="all 0.2s"
             >
-              Previous
+              <Text display={{ base: "none", sm: "block" }}>Previous</Text>
             </Button>
 
             {/* Page Numbers */}
-            <HStack spacing={2} mx={4}>
+            <HStack spacing={{ base: 1, md: 2 }} mx={{ base: 2, md: 4 }}>
               {totalPages === 0 ? (
                 <Button
                   colorScheme="gray"
                   variant="outline"
-                  size="md"
-                  minW="45px"
+                  size={{ base: "sm", md: "md" }}
+                  minW={{ base: "35px", md: "45px" }}
+                  h={{ base: "35px", md: "45px" }}
                   borderRadius="full"
                   fontWeight="bold"
+                  fontSize={{ base: "sm", md: "md" }}
                   disabled
                 >
                   0
@@ -435,10 +445,12 @@ function DestinationDetails() {
                     onClick={() => setCurrentPage(page)}
                     colorScheme={currentPage === page ? "blue" : "gray"}
                     variant={currentPage === page ? "solid" : "outline"}
-                    size="md"
-                    minW="45px"
+                    size={{ base: "sm", md: "md" }}
+                    minW={{ base: "35px", md: "45px" }}
+                    h={{ base: "35px", md: "45px" }}
                     borderRadius="full"
                     fontWeight="bold"
+                    fontSize={{ base: "sm", md: "md" }}
                     _hover={{
                       transform: currentPage !== page ? "translateY(-2px)" : "none",
                       shadow: "md"
@@ -457,12 +469,20 @@ function DestinationDetails() {
               disabled={currentPage === totalPages || totalPages === 0}
               colorScheme="blue"
               variant="outline"
-              size="md"
+              size={{ base: "sm", md: "md" }}
               rightIcon={<FaChevronRight />}
               borderRadius="full"
+              minW={{ base: "auto", sm: "80px" }}
+              px={{ base: 3, sm: 6 }}
+              fontSize={{ base: "sm", md: "md" }}
               _disabled={{ opacity: 0.4, cursor: "not-allowed" }}
+              _hover={{
+                transform: "translateY(-1px)",
+                shadow: "md"
+              }}
+              transition="all 0.2s"
             >
-              Next
+              <Text display={{ base: "none", sm: "block" }}>Next</Text>
             </Button>
           </Flex>
 
