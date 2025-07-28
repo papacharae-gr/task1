@@ -14,6 +14,7 @@ const api = axios.create({
 export const destinationsAPI = {
   getAll: () => api.get('/destinations'),
   getById: (id) => api.get(`/destinations/${id}`),
+  incrementViews: (id) => api.patch(`/destinations/${id}/views`),
 };
 
 // Trips API
@@ -29,5 +30,7 @@ export const tripsAPI = {
   updatePlanned: (id, tripData) => api.put(`/trips/planned/${id}`, tripData),
   removePlanned: (id) => api.delete(`/trips/planned/${id}`),
 };
+
+
 
 export default api;

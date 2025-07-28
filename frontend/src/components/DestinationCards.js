@@ -14,7 +14,7 @@ import {
 } from '@chakra-ui/react';
 import { StarIcon } from '@chakra-ui/icons';
 import { Link, useNavigate } from 'react-router-dom';
-import { tripsAPI } from '../services/api';
+import { tripsAPI, destinationsAPI } from '../services/api';
 
 function DestinationCards({ 
   destinations, 
@@ -36,8 +36,7 @@ function DestinationCards({
     if (cardClickable) {
       // Increment view count when clicking on card
       try {
-        // You can add view tracking API call here if needed
-        // await destinationsAPI.incrementViews(dest.id);
+        await destinationsAPI.incrementViews(dest.id);
       } catch (error) {
         console.error('Error tracking view:', error);
       }
@@ -87,9 +86,16 @@ function DestinationCards({
     }
   };
 
-  const handleViewDetails = (event) => {
+  const handleViewDetails = async (dest, event) => {
     // Prevent card click when clicking view details
     event.stopPropagation();
+    
+    // Track view count
+    try {
+      await destinationsAPI.incrementViews(dest.id);
+    } catch (error) {
+      console.error('Error tracking view:', error);
+    }
   };
 
   if (!destinations || destinations.length === 0) {
@@ -99,6 +105,8 @@ function DestinationCards({
       </Text>
     );
   }
+
+  
 
   return (
     <Grid
@@ -149,7 +157,7 @@ function DestinationCards({
               size={{ base: "md", sm: "sm" }}
               borderRadius="full"
               w={{ base: "100%", sm: "auto" }}
-              onClick={handleViewDetails}
+              onClick={(e) => handleViewDetails(dest, e)}
             >
               View Details
             </Button>
