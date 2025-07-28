@@ -18,6 +18,7 @@ import {
 } from '@chakra-ui/react';
 import { FaCheckCircle, FaMapMarkerAlt, FaUtensils } from 'react-icons/fa';
 import { useParams, useNavigate } from 'react-router-dom';
+import DestinationCards from '../components/DestinationCards';
 
 import AddTripModal from '../components/AddTripModal';
 import { useState, useEffect, useCallback } from 'react';
@@ -40,7 +41,7 @@ function DestinationDetails() {
   const fetchDestinations = useCallback(async () => {
     try {
       const response = await destinationsAPI.getAll();
-      setDestinations(response.data);
+      setDestinations(response.data || []);
     } catch (error) {
       console.error('Error fetching destinations:', error);
       toast({
@@ -148,30 +149,10 @@ function DestinationDetails() {
           </Text>
         </Box>
 
-        <SimpleGrid columns={{ base: 1, md: 3 }} spacing={8}>
-          {destinations.map(destination => (
-            <Box key={destination.id} bg={cardBg} p={5} borderRadius="lg" shadow="md">
-              <Image
-                src={destination.image}
-                alt={destination.name}
-                borderRadius="xl"
-                mb={4}
-                objectFit="cover"
-                height="180px"
-                width="100%"
-              />
-              <Heading size="md" mb={2}>{destination.name}</Heading>
-              <Text fontSize="sm" mb={2}>{destination.description}</Text>
-              <Button
-                colorScheme="blue"
-                onClick={() => navigate(`/DestinationDetails/${destination.id}`)}
-                mt={2}
-              >
-                View Details
-              </Button>
-            </Box>
-          ))}
-        </SimpleGrid>
+        <DestinationCards 
+          destinations={destinations}
+          gridColumns={{ base: '1fr', md: 'repeat(3, 1fr)' }}
+        />
       </PageContainer>
     );
   }

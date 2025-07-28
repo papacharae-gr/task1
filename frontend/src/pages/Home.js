@@ -1,27 +1,21 @@
 import React, { useEffect, useState } from 'react';
-import { destinationsAPI, tripsAPI } from '../services/api'; // <-- Πρόσθεσε αυτό
+import { destinationsAPI } from '../services/api';
 import {
   Box,
-  Grid,
-  Image,
   Text,
   Heading,
   Button,
   Input,
   VStack,
-  Card,
-  CardBody,
-  CardFooter,
   HStack,
-  useColorModeValue,
   Divider,
   useToast,
   List,
   ListItem,
 } from '@chakra-ui/react';
-import { StarIcon } from '@chakra-ui/icons';
 import { Link, useNavigate } from 'react-router-dom';
 import PageContainer from '../components/PageContainer';
+import DestinationCards from '../components/DestinationCards';
 
 function Home() {
   const [destinations, setDestinations] = useState([]);
@@ -123,54 +117,17 @@ function Home() {
   };
 
   // Οι προορισμοί παραμένουν σταθεροί - δείχνουμε πάντα τους καλύτερους
-  const displayedDestinations = destinations
+  const displayedDestinations = selectedDestination 
+    ? [selectedDestination] 
+    : destinations
     .sort((a, b) => {
-      if (parseFloat(b.rating) !== parseFloat(a.rating)) {
-        return parseFloat(b.rating) - parseFloat(a.rating);
-      }
+      // Ταξινόμηση κατά rating (υψηλότερο πρώτα)
+      const ratingDiff = parseFloat(b.rating) - parseFloat(a.rating);
+      if (ratingDiff !== 0) return ratingDiff;
+      // Αν έχουν ίδιο rating, ταξινόμηση αλφαβητικά
       return a.name.localeCompare(b.name);
     })
     .slice(0, 3); // Δείχνουμε πάντα τους top 6 προορισμούς
-
-  const handleSave = async (destination, event) => {
-    // Stop event bubbling to prevent navigation when clicking save
-    event.stopPropagation();
-    
-    try {
-      await tripsAPI.addSaved(destination.id);
-      
-      toast({
-        title: 'Saved to My Trips',
-        status: 'success',
-        duration: 2000,
-        isClosable: true,
-        position: 'top-center'
-      });
-    } catch (error) {
-      if (error.response?.status === 409) {
-        toast({
-          title: 'Already saved',
-          status: 'info',
-          duration: 2000,
-          isClosable: true,
-          position: 'top-center',
-        });
-      } else {
-        console.error('Error saving destination:', error);
-        toast({
-          title: 'Error saving destination',
-          description: 'Please try again later.',
-          status: 'error',
-          duration: 3000,
-          isClosable: true,
-          position: 'top-center'
-        });
-      }
-    }
-  };
-
-  const cardBg = useColorModeValue('white', 'gray.800');
-  const cardShadow = useColorModeValue('md', 'dark-lg');
 
   return (
     <PageContainer>
@@ -290,67 +247,9 @@ function Home() {
               No destinations found. Try a different search term.
             </Text>
           ) : (
-            <Grid
-              
-              templateColumns={{ base: '1fr', md: 'repeat(2, 1fr)', lg: 'repeat(3, 1fr)' }}
-              gap={{ base: 4, md: 6, lg: 8 }}
-            >
-              {displayedDestinations.map(dest => (
-                <Card
-                  onClick={() => navigate(`/DestinationDetails/${dest.id}`)}
-                  key={dest.id}
-                  bg={cardBg}
-                  shadow={cardShadow}
-                  borderRadius="xl"
-                  overflow="hidden"
-                  transition="all 0.3s"
-                  _hover={{ transform: 'translateY(-4px)', shadow: 'xl' }}
-                  cursor={'pointer'}
-                >
-                  <Image src={dest.image} alt={dest.name} objectFit="cover" height="200px" width="100%" />
-                  <CardBody>
-                    
-                    <Heading size="md" mb={2}>{dest.name}</Heading>
-                    <Text noOfLines={3} fontSize="sm" color="gray.600">
-                      {dest.description}
-                    </Text>
-                    <HStack mt={3} spacing={1} align="center">
-                      {Array(5)
-                        .fill('')
-                        .map((_, i) => (
-                          <StarIcon
-                            key={i}
-                            color={i < parseFloat(dest.rating) ? 'yellow.400' : 'gray.300'}
-                          />
-                        ))}
-                    </HStack>
-                  </CardBody>
-                  <CardFooter justifyContent="space-between" flexDirection={{ base: "column", sm: "row" }} gap={{ base: 2, sm: 0 }}>
-                    <Button
-                      as={Link}
-                      to={`/DestinationDetails/${dest.id}`}
-                      colorScheme="blue"
-                      size={{ base: "md", sm: "sm" }}
-                      borderRadius="full"
-                      w={{ base: "100%", sm: "auto" }}
-                      onClick={(e) => e.stopPropagation()}
-                    >
-                      View Details
-                    </Button>
-                    <Button
-                      onClick={(e) => handleSave(dest, e)}
-                      colorScheme="green"
-                      size={{ base: "md", sm: "sm" }}
-                      borderRadius="full"
-                      variant="outline"
-                      w={{ base: "100%", sm: "auto" }}
-                    >
-                      Save
-                    </Button>
-                  </CardFooter>
-                </Card>
-              ))}
-            </Grid>
+            <DestinationCards 
+              destinations={displayedDestinations}
+            />
           )}
           <Box textAlign="center" mt={{ base: 6, md: 8 }}>
             <Button
