@@ -121,13 +121,18 @@ function Home() {
     ? [selectedDestination] 
     : destinations
     .sort((a, b) => {
-      // Ταξινόμηση κατά rating (υψηλότερο πρώτα)
+      // 1. Πρώτα ταξινόμηση κατά views (υψηλότερο πρώτα)
+      const viewsDiff = (parseInt(b.views) || 0) - (parseInt(a.views) || 0);
+      if (viewsDiff !== 0) return viewsDiff;
+      
+      // 2. Αν έχουν ίδια views, ταξινόμηση κατά rating (υψηλότερο πρώτα)
       const ratingDiff = parseFloat(b.rating) - parseFloat(a.rating);
       if (ratingDiff !== 0) return ratingDiff;
-      // Αν έχουν ίδιο rating, ταξινόμηση αλφαβητικά
+      
+      // 3. Αν έχουν ίδιο rating και views, ταξινόμηση αλφαβητικά
       return a.name.localeCompare(b.name);
     })
-    .slice(0, 3); // Δείχνουμε πάντα τους top 6 προορισμούς
+    .slice(0, 3); // Δείχνουμε τους top 3 προορισμούς
 
   return (
     <PageContainer>
@@ -234,9 +239,12 @@ function Home() {
 
         {/* Destinations Section */}
         <Box px={{ base: 4, md: 10 }} py={10}>
-          <Heading size="lg" mb={4} color="blue.500">
-            Popular Destinations
+          <Heading size="lg" mb={2} color="blue.500">
+            Top 3 Destinations
           </Heading>
+          <Text fontSize="sm" color="gray.600" mb={4}>
+            Ranked by most popular views and highest ratings
+          </Text>
 
           <Divider borderColor="blue.500" borderWidth="2px" />
           <Divider mb={4} />
