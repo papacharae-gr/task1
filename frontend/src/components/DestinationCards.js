@@ -11,10 +11,13 @@ import {
   Grid,
   useColorModeValue,
   useToast,
+  Icon,
+  Badge,
 } from '@chakra-ui/react';
 import { StarIcon } from '@chakra-ui/icons';
+import { FaEye } from 'react-icons/fa';
 import { Link, useNavigate } from 'react-router-dom';
-import { tripsAPI, destinationsAPI } from '../services/api';
+import { tripsAPI } from '../services/api';
 
 function DestinationCards({ 
   destinations, 
@@ -34,12 +37,7 @@ function DestinationCards({
 
   const handleCardClick = async (dest) => {
     if (cardClickable) {
-      // Increment view count when clicking on card
-      try {
-        await destinationsAPI.incrementViews(dest.id);
-      } catch (error) {
-        console.error('Error tracking view:', error);
-      }
+      // Just navigate, view counting will happen in DestinationDetails page
       navigate(`/DestinationDetails/${dest.id}`);
     }
   };
@@ -86,16 +84,10 @@ function DestinationCards({
     }
   };
 
-  const handleViewDetails = async (dest, event) => {
+  const handleViewDetails = (event) => {
     // Prevent card click when clicking view details
     event.stopPropagation();
-    
-    // Track view count
-    try {
-      await destinationsAPI.incrementViews(dest.id);
-    } catch (error) {
-      console.error('Error tracking view:', error);
-    }
+    // View counting will happen in DestinationDetails page
   };
 
   if (!destinations || destinations.length === 0) {
@@ -157,10 +149,27 @@ function DestinationCards({
               size={{ base: "md", sm: "sm" }}
               borderRadius="full"
               w={{ base: "100%", sm: "auto" }}
-              onClick={(e) => handleViewDetails(dest, e)}
+              onClick={handleViewDetails}
             >
               View Details
             </Button>
+            
+            {/* Views Badge */}
+            <Badge 
+              colorScheme="gray" 
+              size="lg"
+              borderRadius="full"
+              px={3}
+              py={1}
+              display="flex"
+              alignItems="center"
+              gap={1}
+              fontSize="sm"
+            >
+              <Icon as={FaEye} boxSize={3} />
+              {dest.views || 0}
+            </Badge>
+            
             {showSaveButton && (
               <Button
                 onClick={(e) => handleSave(dest, e)}

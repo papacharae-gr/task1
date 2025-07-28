@@ -28,7 +28,7 @@ import { FaCheckCircle, FaMapMarkerAlt, FaUtensils, FaSearch, FaChevronLeft, FaC
 import { useParams, useNavigate } from 'react-router-dom';
 
 import AddTripModal from '../components/AddTripModal';
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect } from 'react';
 import PageContainer from '../components/PageContainer';
 import DestinationCards from '../components/DestinationCards';
 import { destinationsAPI, tripsAPI } from '../services/api'; // <-- Πρόσθεσε αυτό
@@ -53,48 +53,6 @@ function DestinationDetails() {
 
   const cardBg = useColorModeValue('white', 'gray.800');
   const sidebarBg = useColorModeValue('gray.50', 'gray.700');
-
-  const fetchDestinations = useCallback(async () => {
-    try {
-      const response = await destinationsAPI.getAll();
-      setDestinations(response.data);
-    } catch (error) {
-      console.error('Error fetching destinations:', error);
-      toast({
-        title: 'Error fetching destinations',
-        description: 'Please try again later.',
-        status: 'error',
-        duration: 3000,
-        isClosable: true,
-        position: 'top-center',
-      });
-    } finally {
-      setLoading(false);
-    }
-  }, [toast]);
-  
-  const fetchDestination = useCallback(async (destinationId) => {
-    try {
-      // Increment view count when visiting destination details
-      await destinationsAPI.incrementViews(destinationId);
-      
-      const response = await destinationsAPI.getById(destinationId);
-      const data = response.data;
-      
-      // Πρόσθεσε default values για missing fields
-      setDestination({
-        ...data,
-        attractions: data.attractions || [],
-        cuisine: data.cuisine || 'Information not available',
-        tripInfo: data.tripInfo || data.trip_info || {},
-      });
-    } catch (error) {
-      console.error('Error fetching destination:', error);
-      setDestination(null);
-    } finally {
-      setLoading(false);
-    }
-  }, []);
 
   const handleSaveToMyTrips = async () => {
     try {
@@ -211,13 +169,56 @@ function DestinationDetails() {
 
   useEffect(() => {
     if (id) {
-      // If id exists, fetch the specific destination
-      fetchDestination(id);
+      // Increment view count only once when the page loads
+      const handlePageLoad = async () => {
+        try {
+          // First increment views
+          await destinationsAPI.incrementViews(id);
+          console.log('View incremented for destination:', id);
+          
+          // Then fetch destination data
+          const response = await destinationsAPI.getById(id);
+          const data = response.data;
+          
+          setDestination({
+            ...data,
+            attractions: data.attractions || [],
+            cuisine: data.cuisine || 'Information not available',
+            tripInfo: data.tripInfo || data.trip_info || {},
+          });
+        } catch (error) {
+          console.error('Error loading destination:', error);
+          setDestination(null);
+        } finally {
+          setLoading(false);
+        }
+      };
+      
+      handlePageLoad();
     } else {
       // Otherwise, fetch all destinations
-      fetchDestinations();
+      const loadAllDestinations = async () => {
+        try {
+          const response = await destinationsAPI.getAll();
+          setDestinations(response.data);
+        } catch (error) {
+          console.error('Error fetching destinations:', error);
+          toast({
+            title: 'Error fetching destinations',
+            description: 'Please try again later.',
+            status: 'error',
+            duration: 3000,
+            isClosable: true,
+            position: 'top-center',
+          });
+        } finally {
+          setLoading(false);
+        }
+      };
+      
+      loadAllDestinations();
     }
-  }, [fetchDestination, fetchDestinations, id]);
+  }, [id, toast]); // Only depend on id and toast
 
   // 1. ΠΡΩΤΑ το loading
   if (loading) {
