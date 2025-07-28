@@ -15,14 +15,22 @@ import {
   useColorModeValue,
   useDisclosure,
   useToast,
+  Input,
+  Select,
+  Flex,
+  Badge,
+  InputGroup,
+  InputLeftElement,
+  InputRightElement,
+  IconButton,
 } from '@chakra-ui/react';
-import { FaCheckCircle, FaMapMarkerAlt, FaUtensils } from 'react-icons/fa';
+import { FaCheckCircle, FaMapMarkerAlt, FaUtensils, FaSearch, FaChevronLeft, FaChevronRight, FaEye, FaTimes } from 'react-icons/fa';
 import { useParams, useNavigate } from 'react-router-dom';
-import DestinationCards from '../components/DestinationCards';
 
 import AddTripModal from '../components/AddTripModal';
 import { useState, useEffect, useCallback } from 'react';
 import PageContainer from '../components/PageContainer';
+import DestinationCards from '../components/DestinationCards';
 import { destinationsAPI, tripsAPI } from '../services/api'; // <-- Πρόσθεσε αυτό
 
 function DestinationDetails() {
@@ -34,6 +42,14 @@ function DestinationDetails() {
   const [destinations, setDestinations] = useState([]);
   const [loading, setLoading] = useState(true);
   const [destination, setDestination] = useState(null);
+  
+  // Search and Filter states
+  const [searchTerm, setSearchTerm] = useState('');
+  const [sortBy, setSortBy] = useState('views'); // 'views', 'rating', 'alphabetical'
+  const [currentPage, setCurrentPage] = useState(1);
+  const [suggestions, setSuggestions] = useState([]);
+  const [showSuggestions, setShowSuggestions] = useState(false);
+  const destinationsPerPage = 3;
 
   const cardBg = useColorModeValue('white', 'gray.800');
   const sidebarBg = useColorModeValue('gray.50', 'gray.700');
@@ -41,7 +57,7 @@ function DestinationDetails() {
   const fetchDestinations = useCallback(async () => {
     try {
       const response = await destinationsAPI.getAll();
-      setDestinations(response.data || []);
+      setDestinations(response.data);
     } catch (error) {
       console.error('Error fetching destinations:', error);
       toast({
@@ -59,6 +75,9 @@ function DestinationDetails() {
   
   const fetchDestination = useCallback(async (destinationId) => {
     try {
+      // Increment view count when visiting destination details
+      await destinationsAPI.incrementViews(destinationId);
+      
       const response = await destinationsAPI.getById(destinationId);
       const data = response.data;
       
@@ -105,6 +124,91 @@ function DestinationDetails() {
     }
   };
 
+  // Filter and sort destinations
+  const getFilteredAndSortedDestinations = () => {
+    let filtered = destinations.filter(dest =>
+      dest.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      dest.description.toLowerCase().includes(searchTerm.toLowerCase())
+    );
+
+    // Sort destinations
+    filtered.sort((a, b) => {
+      switch (sortBy) {
+        case 'views':
+          return (parseInt(b.views) || 0) - (parseInt(a.views) || 0);
+        case 'rating':
+          return parseFloat(b.rating) - parseFloat(a.rating);
+        case 'alphabetical':
+          return a.name.localeCompare(b.name);
+        default:
+          return 0;
+      }
+    });
+
+    return filtered;
+  };
+
+  // Get current page destinations
+  const getCurrentPageDestinations = () => {
+    const filtered = getFilteredAndSortedDestinations();
+    const startIndex = (currentPage - 1) * destinationsPerPage;
+    const endIndex = startIndex + destinationsPerPage;
+    return filtered.slice(startIndex, endIndex);
+  };
+
+  // Get total pages
+  const getTotalPages = () => {
+    const filtered = getFilteredAndSortedDestinations();
+    return Math.ceil(filtered.length / destinationsPerPage);
+  };
+
+  // Handle search with typeahead
+  const handleSearchChange = (value) => {
+    setSearchTerm(value);
+    setCurrentPage(1);
+    
+    if (value.trim().length > 0) {
+      const filtered = destinations.filter(dest =>
+        dest.name.toLowerCase().includes(value.toLowerCase()) ||
+        dest.description.toLowerCase().includes(value.toLowerCase())
+      ).slice(0, 5); // Show max 5 suggestions
+      
+      setSuggestions(filtered);
+      setShowSuggestions(true);
+    } else {
+      setSuggestions([]);
+      setShowSuggestions(false);
+    }
+  };
+
+  // Handle suggestion selection
+  const handleSuggestionClick = (destination) => {
+    setSearchTerm(destination.name);
+    setShowSuggestions(false);
+    setCurrentPage(1);
+  };
+
+  // Handle sort change
+  const handleSortChange = (value) => {
+    setSortBy(value);
+    setCurrentPage(1);
+  };
+
+  // Close suggestions when clicking outside
+  useEffect(() => {
+    const handleClickOutside = () => {
+      setShowSuggestions(false);
+    };
+
+    if (showSuggestions) {
+      document.addEventListener('click', handleClickOutside);
+    }
+
+    return () => {
+      document.removeEventListener('click', handleClickOutside);
+    };
+  }, [showSuggestions]);
+
   useEffect(() => {
     if (id) {
       // If id exists, fetch the specific destination
@@ -126,33 +230,250 @@ function DestinationDetails() {
     );
   }
 
-  // 2. Αν δεν υπάρχει id, δείξε όλα τα destinations
+  // 2. Αν δεν υπάρχει id, δείξε όλα τα destinations με search/filter
   if (!id) {
+    const currentDestinations = getCurrentPageDestinations();
+    const totalPages = getTotalPages();
+
     return (
       <PageContainer>
-        <Box
-          mb={8}
-          py={6}
-          borderRadius="xl"
-          bgGradient="linear(to-r, blue.400, teal.400)"
-          boxShadow="lg"
-          textAlign="center"
-        >
-          <HStack justify="center" spacing={3}>
-            <Icon as={FaMapMarkerAlt} boxSize={7} color="white" />
-            <Heading size="xl" color="white" letterSpacing="wide">
-              All Destinations
-            </Heading>
-          </HStack>
-          <Text color="whiteAlpha.800" fontSize="md" mt={2}>
-            Explore our curated list of amazing places around the world!
-          </Text>
+        {/* Header */}
+
+        {/* Compact Search and Filter Bar */}
+        <Box bg="white" p={4} borderRadius="xl" shadow="md" mb={6}>
+          <Flex direction={{ base: "column", md: "row" }} gap={4} align={{ md: "end" }}>
+            {/* Search Section */}
+            <Box flex={1} position="relative">
+              <Text fontSize="sm" fontWeight="semibold" mb={2} color="gray.600">
+                Search Destinations
+              </Text>
+              <InputGroup size="md">
+                <InputLeftElement pointerEvents="none">
+                  <Icon as={FaSearch} color="gray.400" />
+                </InputLeftElement>
+                <Input
+                  placeholder="Type to search destinations..."
+                  value={searchTerm}
+                  onChange={(e) => handleSearchChange(e.target.value)}
+                  onFocus={() => {
+                    if (suggestions.length > 0) setShowSuggestions(true);
+                  }}
+                  focusBorderColor="blue.400"
+                  borderRadius="lg"
+                  bg="gray.50"
+                  _hover={{ bg: "white" }}
+                  _focus={{ bg: "white", shadow: "sm" }}
+                  pr={searchTerm ? "2.5rem" : "1rem"}
+                />
+                {searchTerm && (
+                  <InputRightElement>
+                    <IconButton
+                      icon={<FaTimes />}
+                      size="sm"
+                      variant="ghost"
+                      colorScheme="gray"
+                      aria-label="Clear search"
+                      onClick={() => handleSearchChange('')}
+                      _hover={{ bg: "gray.100" }}
+                      borderRadius="full"
+                    />
+                  </InputRightElement>
+                )}
+              </InputGroup>
+
+              {/* Compact Typeahead Suggestions */}
+              {showSuggestions && suggestions.length > 0 && (
+                <Box
+                  position="absolute"
+                  top="100%"
+                  left={0}
+                  right={0}
+                  bg="white"
+                  borderRadius="lg"
+                  shadow="xl"
+                  border="1px solid"
+                  borderColor="gray.200"
+                  zIndex={10}
+                  mt={1}
+                  maxH="250px"
+                  overflowY="auto"
+                >
+                  {suggestions.map((dest) => (
+                    <Box
+                      key={dest.id}
+                      p={2}
+                      cursor="pointer"
+                      _hover={{ bg: "blue.50" }}
+                      onClick={() => handleSuggestionClick(dest)}
+                      borderBottom="1px solid"
+                      borderColor="gray.100"
+                      _last={{ borderBottom: "none" }}
+                    >
+                      <HStack spacing={2}>
+                        <Image
+                          src={dest.image}
+                          alt={dest.name}
+                          boxSize="30px"
+                          borderRadius="sm"
+                          objectFit="cover"
+                        />
+                        <VStack align="start" spacing={0} flex={1}>
+                          <Text fontWeight="semibold" fontSize="xs">
+                            {dest.name}
+                          </Text>
+                          <HStack spacing={1}>
+                            <Badge colorScheme="blue" size="xs">
+                              ⭐ {dest.rating}
+                            </Badge>
+                            <Badge colorScheme="green" size="xs">
+                              <Icon as={FaEye} boxSize={2} mr={1} />
+                              {dest.views || 0}
+                            </Badge>
+                          </HStack>
+                        </VStack>
+                      </HStack>
+                    </Box>
+                  ))}
+                </Box>
+              )}
+            </Box>
+
+            {/* Filter Section */}
+            <Box minW={{ base: "full", md: "200px" }}>
+              <Text fontSize="sm" fontWeight="semibold" mb={2} color="gray.600">
+                Sort By
+              </Text>
+              <Select
+                value={sortBy}
+                onChange={(e) => handleSortChange(e.target.value)}
+                size="md"
+                focusBorderColor="blue.400"
+                borderRadius="lg"
+                bg="gray.50"
+                _hover={{ bg: "white" }}
+              >
+                <option value="views">🔥 Most Popular</option>
+                <option value="rating">⭐ Highest Rating</option>
+                <option value="alphabetical">🔤 Alphabetical</option>
+              </Select>
+            </Box>
+
+            {/* Results Info */}
+            <Box minW={{ base: "full", md: "180px" }}>
+              <Text fontSize="sm" fontWeight="semibold" mb={2} color="gray.600">
+                Results
+              </Text>
+              <Box p={2} bg="blue.50" borderRadius="lg" textAlign="center">
+                <Text fontSize="sm" color="blue.700" fontWeight="bold">
+                  {getFilteredAndSortedDestinations().length} found
+                </Text>
+                {searchTerm && (
+                  <Text fontSize="xs" color="blue.600" noOfLines={1}>
+                    "{searchTerm}"
+                  </Text>
+                )}
+              </Box>
+            </Box>
+          </Flex>
         </Box>
 
-        <DestinationCards 
-          destinations={destinations}
-          gridColumns={{ base: '1fr', md: 'repeat(3, 1fr)' }}
-        />
+        {/* Destinations Grid */}
+        {currentDestinations.length === 0 ? (
+          <Box textAlign="center" py={16}>
+            <Text color="gray.500" fontSize="xl" mb={2}>
+              {searchTerm ? '🔍 No destinations found' : '📍 No destinations available'}
+            </Text>
+            <Text color="gray.400" fontSize="md">
+              {searchTerm 
+                ? 'Try adjusting your search terms or filters' 
+                : 'Check back later for new destinations'}
+            </Text>
+          </Box>
+        ) : (
+          <DestinationCards 
+            destinations={currentDestinations}
+            gridColumns={{ base: '1fr', md: 'repeat(3, 1fr)' }}
+          />
+        )}
+
+        {/* Pagination with Arrow Navigation - Always Visible */}
+        <Box mt={12}>
+          <Flex justify="center" align="center" gap={3}>
+            {/* Previous Button with Arrow */}
+            <Button
+              onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
+              disabled={currentPage === 1 || totalPages === 0}
+              colorScheme="blue"
+              variant="outline"
+              size="md"
+              leftIcon={<FaChevronLeft />}
+              borderRadius="full"
+              _disabled={{ opacity: 0.4, cursor: "not-allowed" }}
+            >
+              Previous
+            </Button>
+
+            {/* Page Numbers */}
+            <HStack spacing={2} mx={4}>
+              {totalPages === 0 ? (
+                <Button
+                  colorScheme="gray"
+                  variant="outline"
+                  size="md"
+                  minW="45px"
+                  borderRadius="full"
+                  fontWeight="bold"
+                  disabled
+                >
+                  0
+                </Button>
+              ) : (
+                Array.from({ length: totalPages }, (_, i) => i + 1).map(page => (
+                  <Button
+                    key={page}
+                    onClick={() => setCurrentPage(page)}
+                    colorScheme={currentPage === page ? "blue" : "gray"}
+                    variant={currentPage === page ? "solid" : "outline"}
+                    size="md"
+                    minW="45px"
+                    borderRadius="full"
+                    fontWeight="bold"
+                    _hover={{
+                      transform: currentPage !== page ? "translateY(-2px)" : "none",
+                      shadow: "md"
+                    }}
+                    transition="all 0.2s"
+                  >
+                    {page}
+                  </Button>
+                ))
+              )}
+            </HStack>
+
+            {/* Next Button with Arrow */}
+            <Button
+              onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))}
+              disabled={currentPage === totalPages || totalPages === 0}
+              colorScheme="blue"
+              variant="outline"
+              size="md"
+              rightIcon={<FaChevronRight />}
+              borderRadius="full"
+              _disabled={{ opacity: 0.4, cursor: "not-allowed" }}
+            >
+              Next
+            </Button>
+          </Flex>
+
+          {/* Page Info */}
+          <Text textAlign="center" mt={4} fontSize="sm" color="gray.600">
+            {totalPages === 0 ? (
+              "No results to paginate"
+            ) : (
+              <>Page {currentPage} of {totalPages} • Showing {currentDestinations.length} destinations</>
+            )}
+          </Text>
+        </Box>
       </PageContainer>
     );
   }
