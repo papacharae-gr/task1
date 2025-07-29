@@ -141,7 +141,13 @@ function DestinationCards({
                 ))}
             </HStack>
           </CardBody>
-          <CardFooter justifyContent="space-between" flexDirection={{ base: "column", sm: "row" }} gap={{ base: 2, sm: 0 }}>
+          <CardFooter 
+            justifyContent="space-between" 
+            flexDirection={{ base: "column", sm: "row" }} 
+            gap={{ base: 2, sm: 2 }}
+            pt={4}
+            pb={3}
+          >
             <Button
               as={Link}
               to={`/DestinationDetails/${dest.id}`}
@@ -149,12 +155,11 @@ function DestinationCards({
               size={{ base: "md", sm: "sm" }}
               borderRadius="full"
               w={{ base: "100%", sm: "auto" }}
+              px={{ base: 4, sm: 3 }}
               onClick={handleViewDetails}
             >
               View Details
             </Button>
-            
-            
             
             {showSaveButton && (
               <Button
@@ -164,11 +169,10 @@ function DestinationCards({
                 borderRadius="full"
                 variant="outline"
                 w={{ base: "100%", sm: "auto" }}
+                px={{ base: 4, sm: 3 }}
               >
                 Save
               </Button>
-
-              
             )}
 
             {/* Views Badge */}
