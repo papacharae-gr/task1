@@ -119,7 +119,7 @@ function MyTrips() {
 
   return (
     <PageContainer>
-      <Box px={{ base: 4, md: 10 }} py={4} maxW="1000px" mx="auto">
+      <Box px={{ base: 1, md: 15 }} py={4} maxW="1000px" mx="auto">
         <Heading size="2xl" color="blue.700" mb={4}>My Trips</Heading>
         <Divider borderColor="blue.400" mb={8} />
 
