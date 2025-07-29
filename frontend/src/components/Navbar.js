@@ -7,15 +7,13 @@ import {
   Tab,
   useColorModeValue,
   IconButton,
-  Drawer,
-  DrawerOverlay,
-  DrawerContent,
-  DrawerBody,
-  useDisclosure,
-  VStack,
+  Menu,
+  MenuButton,
+  MenuList,
+  MenuItem,
 } from '@chakra-ui/react';
 import { Link, useLocation } from 'react-router-dom';
-import { HamburgerIcon, CloseIcon } from '@chakra-ui/icons';
+import { HamburgerIcon } from '@chakra-ui/icons';
 import React from 'react';
 
 const navTabs = [
@@ -27,15 +25,13 @@ const navTabs = [
 function Navbar() {
   const location = useLocation();
   const bg = useColorModeValue('blue.600');
-  const { isOpen, onOpen, onClose } = useDisclosure();
 
-  // Active tab index based on URL
   const activeIndex = navTabs.findIndex(tab => {
-  if (tab.path === '/') {
-    return location.pathname === '/';
-  }
-  return location.pathname.startsWith(tab.path);
-});
+    if (tab.path === '/') {
+      return location.pathname === '/';
+    }
+    return location.pathname.startsWith(tab.path);
+  });
 
   return (
     <Box bg={bg} px={6} py={4} shadow="md">
@@ -48,9 +44,9 @@ function Navbar() {
         <Box display={{ base: 'none', md: 'block' }}>
           <Tabs
             index={activeIndex === -1 ? 0 : activeIndex}
-            variant="unstyled" // <-- removes all borders/styling
+            variant="unstyled"
           >
-            <TabList border="none">
+            <TabList>
               {navTabs.map(({ label, path }) => (
                 <Tab
                   key={path}
@@ -64,7 +60,7 @@ function Navbar() {
                     transform: 'translateY(-1px)',
                     boxShadow: '0 2px 2px rgba(0,0,0,0.1)',
                   }}
-                  _hover={{ 
+                  _hover={{
                     bg: 'blue.50',
                     color: 'blue.700',
                     transform: 'translateY(-1px)',
@@ -82,67 +78,62 @@ function Navbar() {
           </Tabs>
         </Box>
 
-        {/* Mobile Hamburger */}
-        <IconButton
-          aria-label="Open menu"
-          icon={<HamburgerIcon />}
-          display={{ base: 'flex', md: 'none' }}
-          onClick={onOpen}
-          colorScheme="whiteAlpha"
-          variant="ghost"
-          fontSize="2xl"
-        />
+        {/* Mobile Dropdown Menu */}
+        <Box display={{ base: 'block', md: 'none' }}>
+          <Menu>
+            <MenuButton
+              as={IconButton}
+              aria-label="Menu"
+              icon={<HamburgerIcon />}
+              variant="ghost"
+              color="white"
+              bg="blue.600"
+              _hover={{ bg: "blue.500" }}
+              _active={{ bg: "blue.700" }}
+              rounded="md"
+              border="1px solid"
+              borderColor="whiteAlpha.300"
+              shadow="sm"
+            />
+            <MenuList 
+              bg={bg} 
+              border="none" 
+              shadow="lg" 
+              py={2} 
+              rounded="lg"
+            >
+              {navTabs.map(({ label, path }) => {
+                const isActive = path === '/'
+                  ? location.pathname === '/'
+                  : location.pathname.startsWith(path);
 
-        {/* Drawer for mobile */}
-        <Drawer placement="right" onClose={onClose} isOpen={isOpen}>
-          <DrawerOverlay />
-          <DrawerContent bg={bg} color="white">
-            <DrawerBody>
-              <Flex justify="flex-end" mt={2}>
-                <IconButton
-                  aria-label="Close menu"
-                  icon={<CloseIcon />}
-                  onClick={onClose}
-                  variant="ghost"
-                  color="white"
-                />
-              </Flex>
-              <VStack spacing={6} mt={8}>
-                {navTabs.map(({ label, path }) => {
-                  const isActive = path === '/' 
-                    ? location.pathname === '/' 
-                    : location.pathname.startsWith(path);
-                  
-                  return (
-                    <Box
-                      as={Link}
-                      to={path}
-                      key={path}
-                      fontWeight={isActive ? 'bold' : 'normal'}
-                      color={isActive ? 'yellow.300' : 'white'}
-                      fontSize="lg"
-                      onClick={onClose}
-                      _hover={{ 
-                        color: 'teal.200',
-                        rounded: 'full',
-                        bg: 'whiteAlpha.100',
-                      }}
-                      px={4}
-                      py={2}
-                      rounded="md"
-                      bg={isActive ? 'whiteAlpha.200' : 'transparent'}
-                      border={isActive ? '2px solid' : 'none'}
-                      borderColor={isActive ? 'yellow.300' : 'transparent'}
-                      transition="all 0.2s"
-                    >
-                      {label}
-                    </Box>
-                  );
-                })}
-              </VStack>
-            </DrawerBody>
-          </DrawerContent>
-        </Drawer>
+                return (
+                  <MenuItem
+                    as={Link}
+                    to={path}
+                    key={path}
+                    bg={isActive ? 'whiteAlpha.400' : 'transparent'} 
+                    color={isActive ? 'yellow.300' : 'white'}
+                    fontWeight={isActive ? 'white' : 'medium'}
+                    rounded="md"
+                    px={4}
+                    py={3}
+                    transition="all 0.2s"
+                    _hover={{
+                      bg: isActive ? 'whiteAlpha.400' : 'whiteAlpha.200',
+                      color: 'teal.200',
+                      transform: 'translateX(4px)',
+                    }}
+                    _focus={{ outline: 'none' }}
+                  >
+                    {isActive && '⭐ '} {label}
+                  </MenuItem>
+                );
+              })}
+            </MenuList>
+
+          </Menu>
+        </Box>
       </Flex>
     </Box>
   );
