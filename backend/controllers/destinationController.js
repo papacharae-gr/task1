@@ -3,11 +3,11 @@ const pool = require('../config/db');
 // GET /api/destinations - Destinations με views του τελευταίου μήνα
 const getAllDestinations = async (req, res) => {
   try {
-    console.log('📍 Fetching all destinations...');
+    //console.log('Fetching all destinations...');
     
     // Πρώτα ελέγχω αν υπάρχει ο πίνακας destinations
     const destResult = await pool.query('SELECT * FROM destinations LIMIT 5');
-    console.log(`Found ${destResult.rows.length} destinations`);
+    //console.log(`Found ${destResult.rows.length} destinations`);
     
     // Ελέγχω αν υπάρχει ο πίνακας views
     const viewsTableCheck = await pool.query(`
@@ -19,7 +19,7 @@ const getAllDestinations = async (req, res) => {
     `);
     
     const viewsTableExists = viewsTableCheck.rows[0].exists;
-    console.log(`Views table exists: ${viewsTableExists}`);
+    //console.log(`Views table exists: ${viewsTableExists}`);
     
     if (viewsTableExists) {
       // Αν υπάρχει ο πίνακας views, υπολογίζω τα monthly views
@@ -43,7 +43,7 @@ const getAllDestinations = async (req, res) => {
         views: dest.monthly_views
       }));
       
-      console.log(`Returning ${destinations.length} destinations with monthly views`);
+      //console.log(`Returning ${destinations.length} destinations with monthly views`);
       res.json(destinations);
     } else {
       // Αν δεν υπάρχει ο πίνακας views, επιστρέφω απλά τους προορισμούς
@@ -53,7 +53,7 @@ const getAllDestinations = async (req, res) => {
         ORDER BY views DESC, rating DESC
       `);
       
-      console.log(`Returning ${result.rows.length} destinations without views table`);
+      //console.log(`Returning ${result.rows.length} destinations without views table`);
       res.json(result.rows);
     }
   } catch (error) {
