@@ -49,7 +49,7 @@ function DestinationDetails() {
   const [currentPage, setCurrentPage] = useState(1);
   const [suggestions, setSuggestions] = useState([]);
   const [showSuggestions, setShowSuggestions] = useState(false);
-  const destinationsPerPage = 3;
+  const [destinationsPerPage, setDestinationsPerPage] = useState(3);
 
   const cardBg = useColorModeValue('white', 'gray.800');
   const sidebarBg = useColorModeValue('gray.50', 'gray.700');
@@ -150,6 +150,12 @@ function DestinationDetails() {
   const handleSortChange = (value) => {
     setSortBy(value);
     setCurrentPage(1);
+  };
+
+  // Handle results per page change
+  const handleResultsPerPageChange = (value) => {
+    setDestinationsPerPage(parseInt(value));
+    setCurrentPage(1); // Reset to first page when changing results per page
   };
 
   // Close suggestions when clicking outside
@@ -359,6 +365,28 @@ function DestinationDetails() {
               </Select>
             </Box>
 
+            {/* Results Per Page Section */}
+            <Box minW={{ base: "full", md: "150px" }}>
+              <Text fontSize="sm" fontWeight="semibold" mb={2} color="gray.600">
+                Per Page
+              </Text>
+              <Select
+                value={destinationsPerPage}
+                onChange={(e) => handleResultsPerPageChange(e.target.value)}
+                size="md"
+                focusBorderColor="blue.400"
+                borderRadius="lg"
+                bg="gray.50"
+                _hover={{ bg: "white" }}
+              >
+                <option value={3}>3 results</option>
+                <option value={6}>6 results</option>
+                <option value={9}>9 results</option>
+                <option value={12}>12 results</option>
+                <option value={15}>15 results</option>
+              </Select>
+            </Box>
+
             {/* Results Info */}
             <Box minW={{ base: "full", md: "180px" }}>
               <Text fontSize="sm" fontWeight="semibold" mb={2} color="gray.600">
@@ -367,6 +395,9 @@ function DestinationDetails() {
               <Box p={2} bg="blue.50" borderRadius="lg" textAlign="center">
                 <Text fontSize="sm" color="blue.700" fontWeight="bold">
                   {getFilteredAndSortedDestinations().length} found
+                </Text>
+                <Text fontSize="xs" color="blue.600">
+                  {destinationsPerPage} per page
                 </Text>
                 {searchTerm && (
                   <Text fontSize="xs" color="blue.600" noOfLines={1}>
@@ -393,7 +424,12 @@ function DestinationDetails() {
         ) : (
           <DestinationCards 
             destinations={currentDestinations}
-            gridColumns={{ base: '1fr', md: 'repeat(3, 1fr)' }}
+            gridColumns={{ 
+              base: '1fr', 
+              md: destinationsPerPage >= 6 ? 'repeat(2, 1fr)' : 'repeat(3, 1fr)',
+              lg: destinationsPerPage >= 9 ? 'repeat(3, 1fr)' : destinationsPerPage >= 6 ? 'repeat(2, 1fr)' : 'repeat(3, 1fr)',
+              xl: destinationsPerPage >= 12 ? 'repeat(4, 1fr)' : destinationsPerPage >= 9 ? 'repeat(3, 1fr)' : 'repeat(3, 1fr)'
+            }}
           />
         )}
 
@@ -491,7 +527,11 @@ function DestinationDetails() {
             {totalPages === 0 ? (
               "No results to paginate"
             ) : (
-              <>Page {currentPage} of {totalPages} • Showing {currentDestinations.length} destinations</>
+              <>
+                Page {currentPage} of {totalPages} • 
+                Showing {currentDestinations.length} of {getFilteredAndSortedDestinations().length} destinations
+                ({destinationsPerPage} per page)
+              </>
             )}
           </Text>
         </Box>
