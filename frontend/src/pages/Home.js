@@ -114,6 +114,7 @@ function Home() {
           bgGradient="linear(to-r, blue.500, cyan.400)"
           py={{ base: 16, md: 24 }}
           px={6}
+          margin={6}
           textAlign="center"
           borderRadius="2xl"
           boxShadow="2xl"
@@ -168,7 +169,7 @@ function Home() {
                   onKeyDown={(e) => {
                     if (e.key === 'Enter') handleSearchSubmit();
                   }}
-                  bg="whiteAlpha.800"
+                  bg="whiteAlpha.900"
                   backdropFilter="blur(8px)"
                   border="2px solid"
                   borderColor="whiteAlpha.600"
