@@ -1,29 +1,7 @@
 import {
-  Box,
-  Heading,
-  Text,
-  Stack,
-  HStack,
-  VStack,
-  Button,
-  Icon,
-  List,
-  ListItem,
-  ListIcon,
-  SimpleGrid,
-  Image,
-  useColorModeValue,
-  useDisclosure,
-  useToast,
-  Input,
-  Select,
-  Flex,
-  Badge,
-  InputGroup,
-  InputLeftElement,
-  InputRightElement,
-  IconButton,
-} from '@chakra-ui/react';
+  Box, Heading, Text, Stack, HStack, VStack, Button, Icon, List, ListItem, ListIcon, SimpleGrid, Image,
+  useColorModeValue, useDisclosure, useToast, Input, Select, Flex, Badge, InputGroup, InputLeftElement,
+  InputRightElement, IconButton, } from '@chakra-ui/react';
 import { FaCheckCircle, FaMapMarkerAlt, FaUtensils, FaSearch, FaChevronLeft, FaChevronRight, FaEye, FaTimes } from 'react-icons/fa';
 import { useParams, useNavigate } from 'react-router-dom';
 
