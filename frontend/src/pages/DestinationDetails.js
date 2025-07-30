@@ -396,9 +396,6 @@ function DestinationDetails() {
                 <Text fontSize="sm" color="blue.700" fontWeight="bold">
                   {getFilteredAndSortedDestinations().length} found
                 </Text>
-                <Text fontSize="xs" color="blue.600">
-                  {destinationsPerPage} per page
-                </Text>
                 {searchTerm && (
                   <Text fontSize="xs" color="blue.600" noOfLines={1}>
                     "{searchTerm}"
