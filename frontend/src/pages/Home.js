@@ -1,22 +1,8 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import { destinationsAPI } from '../services/api';
 import {
-  Box,
-  Text,
-  Heading,
-  Button,
-  Input,
-  VStack,
-  HStack,
-  Divider,
-  useToast,
-  Image,
-  Icon,
-  InputGroup,
-  InputLeftElement,
-  InputRightElement,
-  IconButton,
-  Fade,
+  Box, Text, Heading, Button, Input, VStack, HStack, Divider, useToast, Image,
+  Icon, InputGroup, InputLeftElement, InputRightElement, IconButton, Fade
 } from '@chakra-ui/react';
 import { FaSearch, FaTimes } from 'react-icons/fa';
 import { Link, useNavigate } from 'react-router-dom';
@@ -31,6 +17,7 @@ function Home() {
   const [showSuggestions, setShowSuggestions] = useState(false);
   const toast = useToast();
   const navigate = useNavigate();
+  const searchRef = useRef();
 
   useEffect(() => {
     const fetchDestinations = async () => {
@@ -53,9 +40,13 @@ function Home() {
   }, [toast]);
 
   useEffect(() => {
-    const handleClickOutside = () => setShowSuggestions(false);
-    if (showSuggestions) document.addEventListener('click', handleClickOutside);
-    return () => document.removeEventListener('click', handleClickOutside);
+    const handleClickOutside = (e) => {
+      if (searchRef.current && !searchRef.current.contains(e.target)) {
+        setShowSuggestions(false);
+      }
+    };
+    if (showSuggestions) document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
   }, [showSuggestions]);
 
   const handleSearchChange = (value) => {
@@ -118,25 +109,57 @@ function Home() {
   return (
     <PageContainer>
       <Box>
-        {/* Top Search Section */}
+        {/* Hero Section with Search */}
         <Box
-          bgGradient="linear(to-r, blue.400, blue.400)"
-          py={{ base: 12, md: 20 }}
-          px={4}
+          bgGradient="linear(to-r, blue.500, cyan.400)"
+          py={{ base: 16, md: 24 }}
+          px={6}
           textAlign="center"
-          borderRadius="lg"
-          boxShadow="xl"
+          borderRadius="2xl"
+          boxShadow="2xl"
           position="relative"
+          // αφαιρέσαμε το overflow για να μην κόβεται το dropdown
         >
-          <VStack spacing={6}>
-            <Text fontSize="xl" fontWeight="semibold" color="whiteAlpha.900">
+          {/* Decorative Blobs */}
+          <Box
+            position="absolute"
+            top="-60px"
+            left="-60px"
+            w="220px"
+            h="220px"
+            bg="whiteAlpha.200"
+            borderRadius="full"
+            filter="blur(50px)"
+          />
+          <Box
+            position="absolute"
+            bottom="-80px"
+            right="-80px"
+            w="260px"
+            h="260px"
+            bg="whiteAlpha.300"
+            borderRadius="full"
+            filter="blur(70px)"
+          />
+
+          <VStack spacing={8} position="relative" zIndex="1">
+            <Heading
+              size="2xl"
+              fontWeight="extrabold"
+              color="white"
+              textShadow="0 4px 12px rgba(0,0,0,0.2)"
+            >
               Where would you like to go?
+            </Heading>
+            <Text fontSize="lg" color="whiteAlpha.900" maxW="lg">
+              Discover your dream destinations with top picks and hidden gems worldwide.
             </Text>
 
-            <Box position="relative" width={{ base: "100%", md: "600px" }}>
+            {/* Search Bar */}
+            <Box position="relative" width={{ base: "100%", md: "600px" }} ref={searchRef}>
               <InputGroup size="lg">
                 <InputLeftElement pointerEvents="none">
-                  <Icon as={FaSearch} color="blue.400" boxSize={5} />
+                  <Icon as={FaSearch} color="blue.500" boxSize={6} />
                 </InputLeftElement>
                 <Input
                   placeholder="Search destinations..."
@@ -145,23 +168,30 @@ function Home() {
                   onKeyDown={(e) => {
                     if (e.key === 'Enter') handleSearchSubmit();
                   }}
-                  color="gray.800"
+                  bg="whiteAlpha.800"
+                  backdropFilter="blur(8px)"
+                  border="2px solid"
+                  borderColor="whiteAlpha.600"
                   borderRadius="full"
-                  borderColor="blue.200"
-                  focusBorderColor="blue.400"
-                  bg="gray.50"
-                  _hover={{ bg: "gray.100" }}
+                  color="gray.800"
+                  fontSize="md"
+                  pl="3rem"
+                  pr="5rem"
+                  _focus={{
+                    borderColor: "blue.600",
+                    boxShadow: "0 0 0 4px rgba(66, 153, 225, 0.3)",
+                  }}
                   onFocus={() => {
                     if (suggestions.length > 0) setShowSuggestions(true);
                   }}
                 />
                 {search && (
-                  <InputRightElement>
+                  <InputRightElement width="4rem">
                     <IconButton
                       icon={<FaTimes />}
                       size="sm"
                       variant="ghost"
-                      colorScheme="gray"
+                      colorScheme="red"
                       aria-label="Clear search"
                       onClick={() => {
                         setSearch('');
@@ -174,8 +204,8 @@ function Home() {
                 )}
               </InputGroup>
 
-              {/* Suggestions Dropdown */}
-              {showSuggestions && suggestions.length > 0 && (
+              {/* Suggestions */}
+              <Fade in={showSuggestions && suggestions.length > 0}>
                 <Box
                   position="absolute"
                   top="100%"
@@ -187,22 +217,23 @@ function Home() {
                   boxShadow="2xl"
                   border="1px solid"
                   borderColor="blue.200"
-                  zIndex="1000"
-                  maxH="350px"
+                  zIndex="9999"
+                  maxH="300px"
                   overflowY="auto"
+                  px={2}
+                  py={2}
                 >
                   {suggestions.map((dest) => (
                     <Box
                       key={dest.id}
                       p={3}
                       cursor="pointer"
+                      borderRadius="md"
                       _hover={{ bg: "blue.50" }}
                       onClick={() => handleSuggestionClick(dest)}
-                      borderBottom="1px solid"
-                      borderColor="gray.100"
-                      _last={{ borderBottom: "none" }}
+                      transition="background 0.2s ease"
                     >
-                      <HStack spacing={3}>
+                      <HStack spacing={4}>
                         <Image
                           src={dest.image}
                           alt={dest.name}
@@ -211,7 +242,7 @@ function Home() {
                           objectFit="cover"
                         />
                         <VStack align="start" spacing={1} flex={1}>
-                          <Text fontWeight="medium" fontSize="sm" color="gray.800">
+                          <Text fontWeight="semibold" fontSize="sm" color="gray.700">
                             {dest.name}
                           </Text>
                           <Text fontSize="xs" color="gray.500" noOfLines={1}>
@@ -227,7 +258,7 @@ function Home() {
                     </Box>
                   ))}
                 </Box>
-              )}
+              </Fade>
             </Box>
           </VStack>
         </Box>
@@ -259,17 +290,17 @@ function Home() {
             <Button
               as={Link}
               to={'/DestinationDetails'}
-              bgGradient="linear(to-r, blue.500, blue.700)"
+              bgGradient="linear(to-r, blue.500, cyan.500)"
               color="white"
               size="lg"
               borderRadius="full"
-              fontWeight="semibold"
+              fontWeight="bold"
               px={10}
               py={6}
               _hover={{
-                transform: 'translateY(-3px)',
-                boxShadow: 'xl',
-                bgGradient: "linear(to-r, blue.600, blue.800)"
+                transform: 'translateY(-4px)',
+                boxShadow: '2xl',
+                bgGradient: "linear(to-r, blue.600, cyan.600)"
               }}
               transition="all 0.3s ease"
             >
