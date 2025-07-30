@@ -20,6 +20,8 @@ const navTabs = [
   { label: 'Home', path: '/' },
   { label: 'Destinations', path: '/DestinationDetails' },
   { label: 'My Trips', path: '/MyTrips' },
+  { label: 'Login', path: '/Login' },
+  { label: 'Register', path: '/Register' },
 ];
 
 function Navbar() {
