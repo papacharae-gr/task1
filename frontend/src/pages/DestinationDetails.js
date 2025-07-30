@@ -360,8 +360,6 @@ function DestinationDetails() {
                 <option value={3}>3 results</option>
                 <option value={6}>6 results</option>
                 <option value={9}>9 results</option>
-                <option value={12}>12 results</option>
-                <option value={15}>15 results</option>
               </Select>
             </Box>
 
