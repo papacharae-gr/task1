@@ -145,10 +145,11 @@ function Home() {
 
           <VStack spacing={8} position="relative" zIndex="1">
             <Heading
-              size="2xl"
+              size="xl"
               fontWeight="extrabold"
               color="white"
               textShadow="0 4px 12px rgba(0,0,0,0.2)"
+              
             >
               Where would you like to go?
             </Heading>
