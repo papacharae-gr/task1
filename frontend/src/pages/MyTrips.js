@@ -14,10 +14,13 @@ import {
   Image,
   useColorModeValue,
   useDisclosure,
+  Grid,
+  GridItem,
 } from '@chakra-ui/react';
 import { Link } from 'react-router-dom';
 import PageContainer from '../components/PageContainer';
 import EditTripModal from '../components/EditTripModal'; 
+import Calendar from '../components/calendar';
 
 function MyTrips() {
   const [savedDestinations, setSavedDestinations] = useState([]);
@@ -137,6 +140,10 @@ function MyTrips() {
                   shadow={cardShadow}
                   borderRadius="xl"
                   overflow="hidden"
+                  borderWidth={1}
+                  borderColor="gray.200"
+                  _hover={{ boxShadow: 'lg', borderColor: 'blue.300' }}
+                  width={{ base: '100%', md: '100%' }}
                 >
                   <HStack spacing={4} p={4}>
                     <Image
@@ -180,60 +187,91 @@ function MyTrips() {
           </VStack>
         </Box>
 
-        {/* Planned Trips */}
-        <Box>
-          <Heading size="md" mb={4} color="blue.600">Planned Trips</Heading>
-          <Divider borderColor="blue.400" mb={4} />
-          <VStack align="stretch" spacing={6}>
-            {plannedTrips.length === 0 ? (
-              <Text color="gray.500">No planned trips.</Text>
-            ) : (
-              plannedTrips.map((trip) => (
-                <Box
-                  key={trip.id}
-                  p={5}
-                  bg={cardBg}
-                  shadow={cardShadow}
-                  borderRadius="xl"
-                >
-                  <Heading size="sm" mb={1}>{trip.title}</Heading>
-                  <Text fontSize="xs" color="gray.500">
-                    <Text fontSize="xs" color="gray.500">
-                    Departure: {new Date(trip.departure_date).toLocaleDateString('el-GR', {
-                        day: '2-digit',
-                        month: '2-digit',
-                        year: 'numeric',
-                    })} | Return: {new Date(trip.return_date).toLocaleDateString('el-GR', {
-                        day: '2-digit',
-                        month: '2-digit',
-                        year: 'numeric',
-                    })}
-                  </Text>
+        {/* Planned Trips and Calendar Section - Responsive Layout */}
+        <Grid 
+          templateColumns={{ base: "1fr", lg: "1fr 1fr" }} 
+          gap={8} 
+          alignItems="start"
+        >
+          {/* Planned Trips */}
+          <GridItem>
+            <Box textAlign={{ base: "center", lg: "left" }}>
+              <Heading size="md" mb={4} color="blue.600">Planned Trips</Heading>
+              <Divider borderColor="blue.400" mb={6} width="206%" />
+              <VStack align={{ base: "center", lg: "stretch" }} spacing={6}>
+                {plannedTrips.length === 0 ? (
+                  <Text color="gray.500">No planned trips.</Text>
+                ) : (
+                  plannedTrips.map((trip) => (
+                    <Box
+                      key={trip.id}
+                      p={5}
+                      bg={cardBg}
+                      shadow={cardShadow}
+                      borderRadius="xl"
+                      borderWidth={1}
+                      borderColor="gray.200"
+                      _hover={{ boxShadow: 'lg', borderColor: 'blue.300' }}
+                      width={{ base: '90%', md: '85%', lg: '100%' }}
+                      maxWidth={{ base: "400px", lg: "none" }}
+                      mx={{ base: "auto", lg: "0" }}
+                      align="left"
+                    >
+                      <Heading size="sm" mb={1}>{trip.title}</Heading>
+                      <Text fontSize="xs" color="gray.500">
+                        <Text fontSize="xs" color="gray.500">
+                        Departure: {new Date(trip.departure_date).toLocaleDateString('el-GR', {
+                            day: '2-digit',
+                            month: '2-digit',
+                            year: 'numeric',
+                        })} | Return: {new Date(trip.return_date).toLocaleDateString('el-GR', {
+                            day: '2-digit',
+                            month: '2-digit',
+                            year: 'numeric',
+                        })}
+                      </Text>
 
-                  </Text>
-                  {Array.isArray(trip.destinations) && trip.destinations.length > 0 && (
-                    <Text mt={1} fontSize="sm">
-                      Destinations: {trip.destinations.join(', ')}
-                    </Text>
-                  )}
-                  <Flex align="center" mt={2}>
-                    <Text fontSize="sm" mr={2}>Status:</Text>
-                    <Badge colorScheme={statusColor[trip.status] || 'gray'}>{trip.status}</Badge>
-                    <Spacer />
-                    {(trip.status === 'Planning' || trip.status === 'Confirmed' || trip.status === 'Cancelled') && (
-                      <Button size="xs" colorScheme="yellow" mr={1} onClick={() => handleEditClick(trip)}>
-                        Edit
-                      </Button>
-                    )}
-                    <Button size="xs" colorScheme="red" onClick={() => handleRemovePlanned(trip.id)}>
-                      Remove
-                    </Button>
-                  </Flex>
-                </Box>
-              ))
-            )}
-          </VStack>
-        </Box>
+                      </Text>
+                      {Array.isArray(trip.destinations) && trip.destinations.length > 0 && (
+                        <Text mt={1} fontSize="sm">
+                          Destinations: {trip.destinations.join(', ')}
+                        </Text>
+                      )}
+                      <Flex align="center" mt={2}>
+                        <Text fontSize="sm" mr={2}>Status:</Text>
+                        <Badge colorScheme={statusColor[trip.status] || 'gray'}>{trip.status}</Badge>
+                        <Spacer />
+                        {(trip.status === 'Planning' || trip.status === 'Confirmed' || trip.status === 'Cancelled') && (
+                          <Button size="xs" colorScheme="yellow" mr={1} onClick={() => handleEditClick(trip)}>
+                            Edit
+                          </Button>
+                        )}
+                        <Button size="xs" colorScheme="red" onClick={() => handleRemovePlanned(trip.id)}>
+                          Remove
+                        </Button>
+                      </Flex>
+                    </Box>
+                  ))
+                )}
+              </VStack>
+            </Box>
+          </GridItem>
+
+          {/* Calendar Section */}
+          <GridItem>
+            <Box textAlign={{ base: "center", lg: "auto" }}
+              py= "25%"
+            
+            >
+              <Calendar
+                plannedTrips={plannedTrips}
+                onRefresh={() => {
+                  fetchPlannedTrips();
+                }}
+              />
+            </Box>
+          </GridItem>
+        </Grid>
 
         {/* Edit Modal */}
         <EditTripModal
