@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect} from 'react';
 import {
   Box,
   Heading,
@@ -36,8 +36,9 @@ import {
 } from 'react-icons/fa';
 import { tripsAPI } from '../services/api';
 import PageContainer from '../components/PageContainer';
+
 import jsPDF from 'jspdf';
-import 'jspdf-autotable';
+import autoTable from 'jspdf-autotable';
 
 function Trips() {
   const [trips, setTrips] = useState([]);
@@ -170,34 +171,22 @@ function Trips() {
     doc.setTextColor(100);
     doc.text(`Generated on: ${new Date().toLocaleDateString('el-GR')}`, 20, 40);
     
-    // Prepare table data
-    const tableData = filteredTrips.map(trip => [
-      trip.title || 'Untitled',
-      Array.isArray(trip.destinations) ? trip.destinations.join(', ') : trip.destinations || '',
-      formatDate(trip.departure_date),
-      formatDate(trip.return_date),
-      calculateDuration(trip.departure_date, trip.return_date) + ' days',
-      trip.status || 'Unknown'
-    ]);
+// Prepare table data
+const tableData = filteredTrips.map(trip => [
+  trip.title || 'Untitled',
+  Array.isArray(trip.destinations) ? trip.destinations.join(', ') : trip.destinations || '',
+  formatDate(trip.departure_date),
+  formatDate(trip.return_date),
+  calculateDuration(trip.departure_date, trip.return_date) + ' days',
+  trip.status || 'Unknown'
+]);
 
-    // Add table
-    doc.autoTable({
-      head: [['Title', 'Destinations', 'Departure', 'Return', 'Duration', 'Status']],
-      body: tableData,
-      startY: 50,
-      styles: {
-        fontSize: 8,
-        cellPadding: 3,
-      },
-      headStyles: {
-        fillColor: [44, 82, 130],
-        textColor: 255,
-        fontStyle: 'bold',
-      },
-      alternateRowStyles: {
-        fillColor: [245, 245, 245],
-      },
-    });
+// Add table
+autoTable(doc, {
+  head: [['Title', 'Destinations', 'Departure', 'Return', 'Duration', 'Status']],
+  body: tableData,
+  startY: 50,
+});
 
     // Save the PDF
     doc.save('my-trips-report.pdf');
@@ -223,6 +212,26 @@ function Trips() {
 
   return (
     <PageContainer>
+      <Box px={{ base: 4, md: 4, lg: 4 }} 
+          py={2} 
+          maxW="1000px" 
+          mx="auto" 
+          borderRadius="md"
+          position={ 'relative'}
+          >
+        <Button
+          onClick = {() => window.location.href = '/MyTrips'}
+          colorScheme="blue"
+          variant="outline"
+          size="sm"
+          mb={4}
+          leftIcon={<FaPlane />}
+        >
+          Go Back
+        </Button>
+        </Box>
+      
+      
       <Box px={{ base: 4, md: 8, lg: 12 }} py={6} maxW="1200px" mx="auto">
         {/* Header */}
         <VStack spacing={6} mb={8}>
@@ -233,6 +242,7 @@ function Trips() {
           <Text fontSize="lg" color="gray.600" textAlign="center">
             Manage and view all your travel plans in one place
           </Text>
+          
           <Divider borderColor="blue.400" />
         </VStack>
 
