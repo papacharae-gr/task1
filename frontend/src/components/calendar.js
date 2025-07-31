@@ -19,6 +19,7 @@ import {
   Tooltip,
   Grid,
   GridItem,
+  Checkbox,
 } from '@chakra-ui/react';
 import { tripsAPI } from '../services/api';
 import { useDisclosure } from '@chakra-ui/react';
@@ -37,6 +38,11 @@ function Calendar({ plannedTrips: propTrips, onRefresh }) {
   const [selectedTrip, setSelectedTrip] = useState(null);
   const [selectedMonth, setSelectedMonth] = useState(new Date().getMonth());
   const [selectedYear, setSelectedYear] = useState(new Date().getFullYear());
+  const [selectedStatuses, setSelectedStatuses] = useState({
+    planning: true,
+    confirmed: true,
+    cancelled: true,
+  });
   const { isOpen, onOpen, onClose } = useDisclosure();
 
   const borderColor = useColorModeValue('gray.200', 'gray.600');
@@ -90,7 +96,7 @@ function Calendar({ plannedTrips: propTrips, onRefresh }) {
     }
   }, [propTrips]);
 
-  // Get trips for a specific date
+  // Get trips for a specific date with status filtering
   const getTripsForDate = (date) => {
     return trips.filter(trip => {
       const tripStartDate = new Date(trip.departure_date);
@@ -98,7 +104,13 @@ function Calendar({ plannedTrips: propTrips, onRefresh }) {
       const currentDate = new Date(date);
       
       // Check if the date falls within the trip period
-      return currentDate >= tripStartDate && currentDate <= tripEndDate;
+      const isInDateRange = currentDate >= tripStartDate && currentDate <= tripEndDate;
+      
+      // Check if the trip status is selected
+      const statusKey = trip.status?.toLowerCase() || 'planning';
+      const isStatusSelected = selectedStatuses[statusKey];
+      
+      return isInDateRange && isStatusSelected;
     });
   };
 
@@ -178,6 +190,14 @@ function Calendar({ plannedTrips: propTrips, onRefresh }) {
     return statusConfig[normalizedStatus] || statusConfig.planning;
   };
 
+  // Handle status filter change
+  const handleStatusChange = (status, isChecked) => {
+    setSelectedStatuses(prev => ({
+      ...prev,
+      [status]: isChecked
+    }));
+  };
+
   return (
     <Box
       p={{ base: 2, md: 4, lg: 3 }}
@@ -186,6 +206,7 @@ function Calendar({ plannedTrips: propTrips, onRefresh }) {
       boxShadow="md"
       border="1px solid"
       borderColor={borderColor}
+      
       
     >
       {/* Header */}
@@ -238,21 +259,35 @@ function Calendar({ plannedTrips: propTrips, onRefresh }) {
           </Button>
         </HStack>
 
-        {/* Status Legend */}
-        <HStack spacing={{ base: 2, md: 4, lg: 2 }} wrap="wrap" justify="center">
-          {Object.entries(statusConfig).map(([status, config]) => (
-            <HStack key={status} spacing={1}>
-              <Box w={{ base: 2, lg: 2 }} h={{ base: 2, lg: 2 }} bg={config.bgColor} borderRadius="sm" border="1px solid" borderColor={config.borderColor} />
-              <Text fontSize={{ base: "2xs", md: "xs", lg: "2xs" }} color={config.textColor} fontWeight="medium">
-                {config.label}
-              </Text>
-            </HStack>
-          ))}
-        </HStack>
+        {/* Status Legend with Checkboxes */}
+        <VStack spacing={3}>
+          <Text fontSize={{ base: "sm", md: "md", lg: "sm" }} fontWeight="bold" color="blue.600">
+            Filter by Status:
+          </Text>
+          <HStack spacing={{ base: 4, md: 6, lg: 4 }} wrap="wrap" justify="center">
+            {Object.entries(statusConfig).map(([status, config]) => (
+              <HStack key={status} spacing={2}>
+                <Checkbox
+                  isChecked={selectedStatuses[status]}
+                  onChange={(e) => handleStatusChange(status, e.target.checked)}
+                  colorScheme={config.color}
+                  size="sm"
+                >
+                  <HStack spacing={1}>
+                    <Box w={{ base: 2, lg: 2 }} h={{ base: 2, lg: 2 }} bg={config.bgColor} borderRadius="sm" border="1px solid" borderColor={config.borderColor} />
+                    <Text fontSize={{ base: "2xs", md: "xs", lg: "2xs" }} color={config.textColor} fontWeight="medium">
+                      {config.label}
+                    </Text>
+                  </HStack>
+                </Checkbox>
+              </HStack>
+            ))}
+          </HStack>
+        </VStack>
       </VStack>
 
       {/* Calendar Grid */}
-      <Box bg={calendarBg} borderRadius="lg" p={{ base: 2, md: 3, lg: 2 }} boxShadow="sm">
+      <Box bg={calendarBg} borderRadius="lg" p={{ base: 2, md: 3, lg: 2 }} boxShadow="sm" border="1px solid" borderColor={borderColor}>
         {/* Week Days Header */}
         <Grid templateColumns="repeat(7, 1fr)" gap={{ base: 0.5, md: 1, lg: 0.5 }} mb={{ base: 2, md: 3, lg: 2 }}>
           {weekDays.map((day) => (

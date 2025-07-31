@@ -196,13 +196,13 @@ function MyTrips() {
           {/* Planned Trips */}
           <GridItem>
             <Box textAlign={{ base: "center", lg: "left" }}>
-              <Heading size="md" mb={4} color="blue.600">Planned Trips</Heading>
+              <Heading size="md" mb={4} color="blue.600">Recent Planned Trips</Heading>
               <Divider borderColor="blue.400" mb={6} width="206%" />
               <VStack align={{ base: "center", lg: "stretch" }} spacing={6}>
                 {plannedTrips.length === 0 ? (
                   <Text color="gray.500">No planned trips.</Text>
                 ) : (
-                  plannedTrips.map((trip) => (
+                  plannedTrips.slice(0, 3).map((trip) => (
                     <Box
                       key={trip.id}
                       p={5}
@@ -260,7 +260,7 @@ function MyTrips() {
           {/* Calendar Section */}
           <GridItem>
             <Box textAlign={{ base: "center", lg: "auto" }}
-              py= "25%"
+              py= "20%"
             
             >
               <Calendar
