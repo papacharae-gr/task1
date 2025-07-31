@@ -5,6 +5,7 @@ import Home from './pages/Home';
 import DestinationDetails from './pages/DestinationDetails';
 import MyTrips from './pages/MyTrips';
 import Navbar from './components/Navbar';
+import Trips from './pages/Trips';
 import './App.css';
 
 function App() {
@@ -17,6 +18,7 @@ function App() {
           <Route path="/DestinationDetails" element={<DestinationDetails />} />
           <Route path="/DestinationDetails/:id" element={<DestinationDetails />} />
           <Route path="/MyTrips" element={<MyTrips />} />
+          <Route path="/Trips" element={<Trips />} />
         </Routes>
       </Box>
     </Box>

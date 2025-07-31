@@ -273,6 +273,8 @@ function MyTrips() {
           </GridItem>
         </Grid>
 
+        
+
         {/* Edit Modal */}
         <EditTripModal
           isOpen={isOpen}
@@ -283,6 +285,24 @@ function MyTrips() {
           trip={editTrip}
           onSave={handleEditSave}
         />
+      </Box>
+      <Box
+        textAlign="center">
+        <Button
+            as={Link}
+            to="/Trips"
+            colorScheme="blue"
+            variant="outline"
+            size="sm"
+            width="20%"
+            mt={4}
+            position="center"
+            borderRadius="full"
+            px={6}
+            _hover={{ bg: 'blue.50', color: 'blue.600' }}
+            >
+            View All Trips
+          </Button>
       </Box>
     </PageContainer>
   );
