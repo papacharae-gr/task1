@@ -206,7 +206,7 @@ function Calendar({ plannedTrips: propTrips, onRefresh }) {
       boxShadow="md"
       border="1px solid"
       borderColor={borderColor}
-      
+    
       
     >
       {/* Header */}
